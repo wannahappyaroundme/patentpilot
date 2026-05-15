@@ -1,0 +1,33 @@
+# Node
+node_modules/
+.next/
+out/
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+
+# Python
+etl/.venv/
+etl/__pycache__/
+etl/**/__pycache__/
+etl/.pytest_cache/
+*.pyc
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# ETL build artifacts (large CSVs)
+etl/build/
+etl/data/*.csv
+!etl/data/companies_seed.csv
+!etl/data/ipc_company_seed.csv
+
+# IDE
+.vscode/
+.idea/
