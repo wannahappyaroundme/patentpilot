@@ -109,8 +109,8 @@ def main():
     conn.autocommit = False
     cur = conn.cursor()
 
-    print("truncating patents...")
-    cur.execute("truncate table public.patents")
+    print("truncating patents (CASCADE applications)...")
+    cur.execute("truncate table public.patents cascade")
 
     print("uploading via COPY...")
     buf = io.StringIO()
