@@ -21,6 +21,7 @@ export interface PatentRow {
   registration_date: string | null;
   expiration_date: string | null;
   ipc_primary: string;
+  ipc_all: string;
   claims_count: number;
   family_count: number;
   citation_count: number;

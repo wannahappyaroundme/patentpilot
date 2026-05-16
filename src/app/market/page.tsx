@@ -1,25 +1,104 @@
-import Link from "next/link";
+import { FiltersSidebar } from "@/components/filters-sidebar";
+import { PatentCard } from "@/components/patent-card";
+import { Pagination } from "@/components/pagination";
+import { searchPatents } from "@/lib/patents";
+import { formatNumber } from "@/lib/format";
+import type { Urgency, OrgType } from "@/lib/types";
 
 export const metadata = {
   title: "매물 찾기 — PatentPilot",
 };
 
-export default function MarketPage() {
+export const revalidate = 60;
+
+function asUrgency(v: string | undefined): Urgency | "ALL" {
+  return v === "RED" || v === "YELLOW" || v === "GREEN" ? (v as Urgency) : "ALL";
+}
+function asOrg(v: string | undefined): OrgType | "ALL" {
+  return v === "UNIV" || v === "GRI" || v === "OTHER" ? (v as OrgType) : "ALL";
+}
+function asSort(v: string | undefined) {
+  if (v === "recent" || v === "citations" || v === "claims" || v === "urgency") return v;
+  return "urgency" as const;
+}
+
+export default async function MarketPage({
+  searchParams,
+}: {
+  searchParams: { [k: string]: string | string[] | undefined };
+}) {
+  const sp = (k: string) =>
+    typeof searchParams[k] === "string" ? (searchParams[k] as string) : undefined;
+
+  const page = Number(sp("page")) || 1;
+  const result = await searchPatents({
+    q: sp("q"),
+    urgency: asUrgency(sp("urgency")),
+    org: asOrg(sp("org")),
+    ipc: sp("ipc"),
+    university: sp("university"),
+    sort: asSort(sp("sort")),
+    page,
+    perPage: 20,
+  });
+
+  function buildHref(p: number): string {
+    const params = new URLSearchParams();
+    Object.entries(searchParams).forEach(([k, v]) => {
+      if (typeof v === "string" && v) params.set(k, v);
+    });
+    params.set("page", String(p));
+    return `/market?${params.toString()}`;
+  }
+
   return (
-    <div className="space-y-6 py-12">
-      <div className="rounded-2xl border border-dashed border-ink-200 bg-white p-12 text-center">
-        <h1 className="text-2xl font-bold">매물 검색 페이지</h1>
-        <p className="mt-3 text-sm text-ink-500">
-          158,777건의 매물 풀에서 IPC · 기관 · 긴급도로 필터링.
-          <br />
-          W2 (5/23~5/29)에 작업 예정 — Supabase 적재 완료 후 실시간 검색·필터·정렬·페이지네이션이 들어옵니다.
-        </p>
-        <Link
-          href="/"
-          className="mt-6 inline-flex rounded-md bg-brand px-4 py-2 text-sm font-semibold text-white"
-        >
-          홈으로
-        </Link>
+    <div className="py-8">
+      <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold sm:text-3xl">매물 찾기</h1>
+          <p className="mt-1 text-sm text-ink-500">
+            연차료 납부 중인 활성 매물 풀에서 검색 · 총{" "}
+            <span className="font-semibold tabular-nums text-ink-900">
+              {formatNumber(result.total)}
+            </span>
+            건
+          </p>
+        </div>
+        {sp("q") && (
+          <div className="rounded-full bg-brand-50 px-3 py-1 text-sm text-brand">
+            검색어: <b>{sp("q")}</b>
+          </div>
+        )}
+      </header>
+
+      <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
+        <FiltersSidebar />
+
+        <section className="space-y-4">
+          {result.rows.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-ink-200 bg-white p-12 text-center">
+              <div className="text-base font-semibold">검색 결과가 없습니다</div>
+              <p className="mt-2 text-sm text-ink-500">
+                필터를 완화하거나 검색어를 다시 입력해보세요.
+              </p>
+            </div>
+          ) : (
+            <ul className="grid gap-4 sm:grid-cols-2">
+              {result.rows.map((p) => (
+                <li key={p.application_number}>
+                  <PatentCard p={p} />
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <Pagination
+            page={result.page}
+            perPage={result.perPage}
+            total={result.total}
+            buildHref={buildHref}
+          />
+        </section>
       </div>
     </div>
   );
