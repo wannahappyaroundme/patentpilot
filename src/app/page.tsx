@@ -1,10 +1,13 @@
 import { BannerSlider } from "@/components/banner-slider";
 import { LiveCounter } from "@/components/live-counter";
 import { QuickMenu } from "@/components/quick-menu";
+import { RecentApplications } from "@/components/recent-applications";
 import { RotatingText } from "@/components/rotating-text";
 import { SearchBar } from "@/components/search-bar";
 import { ThemeCards } from "@/components/theme-cards";
 import { TopOrgs } from "@/components/top-orgs";
+
+export const revalidate = 60;
 
 export default async function HomePage() {
   return (
@@ -27,7 +30,10 @@ export default async function HomePage() {
         <LiveCounter />
       </section>
 
-      <ThemeCards />
+      <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
+        <ThemeCards />
+        <RecentApplications />
+      </div>
 
       <TopOrgs />
     </div>

@@ -123,3 +123,25 @@ export async function getPatentByAppNo(
   if (error || !data) return null;
   return data as PatentRow;
 }
+
+export async function getPatentsByAppNos(
+  appNos: string[],
+): Promise<PatentRow[]> {
+  const sb = client();
+  if (!sb || appNos.length === 0) return [];
+  const clean = appNos
+    .filter((s) => typeof s === "string" && s.trim() !== "")
+    .slice(0, 20);
+  if (clean.length === 0) return [];
+  const { data, error } = await sb
+    .from("patents")
+    .select("*")
+    .in("application_number", clean);
+  if (error || !data) return [];
+  const order = new Map(clean.map((n, i) => [n, i]));
+  return (data as PatentRow[]).sort(
+    (a, b) =>
+      (order.get(a.application_number) ?? 0) -
+      (order.get(b.application_number) ?? 0),
+  );
+}

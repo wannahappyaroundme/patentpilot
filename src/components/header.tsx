@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Search } from "lucide-react";
 import { Logo } from "./logo";
+import { CompareLink } from "./compare-link";
 
 export function Header() {
   return (
@@ -19,6 +20,7 @@ export function Header() {
           </nav>
         </div>
         <div className="flex items-center gap-2">
+          <CompareLink />
           <button
             type="button"
             aria-label="검색"

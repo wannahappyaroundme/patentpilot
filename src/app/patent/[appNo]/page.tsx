@@ -6,6 +6,7 @@ import { getPatentByAppNo } from "@/lib/patents";
 import { PatentMeta } from "@/components/patent-meta";
 import { MatchCandidates } from "@/components/match-candidates";
 import { TrackedLink } from "@/components/tracked-link";
+import { FavoriteButton } from "@/components/favorite-button";
 
 export const revalidate = 300;
 
@@ -86,6 +87,12 @@ export default async function PatentDetailPage({
             >
               이 매물 거래 신청하기
             </TrackedLink>
+            <FavoriteButton
+              appNo={p.application_number}
+              variant="labeled"
+              size={14}
+              className="mt-2 w-full justify-center"
+            />
           </div>
 
           <div className="rounded-2xl border border-ink-100 bg-white p-5">

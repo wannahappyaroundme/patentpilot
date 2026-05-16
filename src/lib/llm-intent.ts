@@ -35,7 +35,7 @@ async function callOpenAi(q: string): Promise<LlmIntent | null> {
     const { default: OpenAI } = await import("openai");
     const client = new OpenAI({ apiKey: key });
     const resp = await client.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: process.env.OPENAI_CHAT_MODEL ?? "gpt-4.1-nano",
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
