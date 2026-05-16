@@ -20,7 +20,7 @@ export interface SearchParams {
   university?: string;
   page?: number;
   perPage?: number;
-  sort?: "urgency" | "recent" | "citations" | "claims";
+  sort?: "urgency" | "recent" | "citations" | "claims" | "transfers";
 }
 
 export interface SearchResult {
@@ -82,6 +82,9 @@ export async function searchPatents(p: SearchParams): Promise<SearchResult> {
       break;
     case "claims":
       q = q.order("claims_count", { ascending: false });
+      break;
+    case "transfers":
+      q = q.order("transfer_events", { ascending: false });
       break;
     case "urgency":
     default:

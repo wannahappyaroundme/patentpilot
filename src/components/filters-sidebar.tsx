@@ -20,6 +20,7 @@ const SORT_OPTS = [
   { value: "recent", label: "최신 출원순" },
   { value: "citations", label: "피인용 많은순" },
   { value: "claims", label: "청구항 많은순" },
+  { value: "transfers", label: "권리 이동 활발순" },
 ];
 
 const IPC_PRESETS = [
