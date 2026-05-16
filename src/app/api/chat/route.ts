@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { parseQuery, type ChatIntent } from "@/lib/chat-intent";
+import { llmIntent } from "@/lib/llm-intent";
 import { searchPatents, getPatentByAppNo } from "@/lib/patents";
 import type { PatentRow } from "@/lib/types";
 import { matchCompanies, type CompanyMatch } from "@/lib/matching";
@@ -43,7 +44,9 @@ export async function POST(req: NextRequest) {
   const q = (body.q ?? "").trim();
   if (!q) return NextResponse.json({ error: "q is required" }, { status: 400 });
 
-  const intent = parseQuery(q);
+  // OPENAI_API_KEY가 있으면 LLM으로 의도 추출, 실패 시 룰베이스로 폴백
+  const llm = await llmIntent(q);
+  const intent: ChatIntent = llm ?? parseQuery(q);
 
   if (intent.kind === "patent" && intent.appNo) {
     const patent = await getPatentByAppNo(intent.appNo);

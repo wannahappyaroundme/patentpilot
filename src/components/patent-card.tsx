@@ -87,8 +87,27 @@ export function PatentCard({ p }: { p: PatentRow }) {
         />
       </dl>
 
-      <div className="mt-3 text-xs text-ink-300">
-        출원 {p.application_date ?? "—"} · 등록 {p.registration_date ?? "—"}
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+        <span className="text-ink-300">
+          출원 {p.application_date ?? "—"} · 등록 {p.registration_date ?? "—"}
+        </span>
+        <div className="flex flex-wrap gap-1">
+          {p.transfer_events >= 5 && (
+            <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
+              🤝 권리이동 {p.transfer_events}회
+            </span>
+          )}
+          {p.applicant.includes(";") && (
+            <span className="rounded-full bg-violet-50 px-2 py-0.5 text-[10px] font-medium text-violet-700">
+              🏢 공동출원
+            </span>
+          )}
+          {p.family_count >= 3 && (
+            <span className="rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-medium text-brand">
+              🌐 패밀리 {p.family_count}
+            </span>
+          )}
+        </div>
       </div>
     </article>
   );
