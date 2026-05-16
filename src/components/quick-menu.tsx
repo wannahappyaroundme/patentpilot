@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { TrackedLink } from "@/components/tracked-link";
 import { AlarmClock, Hourglass, GraduationCap, FlaskConical, Bot } from "lucide-react";
 
 const ITEMS = [
@@ -49,8 +49,9 @@ export function QuickMenu() {
     <ul className="grid grid-cols-2 gap-3 sm:grid-cols-5 sm:gap-4">
       {ITEMS.map(({ href, label, desc, Icon, iconClass, bgClass }) => (
         <li key={href}>
-          <Link
+          <TrackedLink
             href={href}
+            meta={{ target: "quick_menu", label }}
             className="group flex flex-col items-center rounded-2xl border border-ink-100 bg-white p-5 text-center transition hover:-translate-y-0.5 hover:shadow-card"
           >
             <span className={`flex h-14 w-14 items-center justify-center rounded-2xl ${bgClass}`}>
@@ -58,7 +59,7 @@ export function QuickMenu() {
             </span>
             <span className="mt-3 text-sm font-semibold text-ink-900">{label}</span>
             <span className="mt-1 text-xs text-ink-500">{desc}</span>
-          </Link>
+          </TrackedLink>
         </li>
       ))}
     </ul>

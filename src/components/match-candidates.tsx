@@ -43,8 +43,13 @@ export async function MatchCandidates({ patent }: { patent: PatentRow }) {
                   {c.description} · 매출 {c.revenue_band}
                 </p>
                 <p className="mt-1 text-xs text-ink-300">
-                  매칭 근거: IPC <b>{c.matched_ipc}</b> 가중치 {c.ipc_weight.toFixed(1)}
+                  IPC <b>{c.matched_ipc}</b> · 점수 {c.ipc_score} + 매출 {c.revenue_score} + 협력 {c.collab_score}
                 </p>
+                {c.collab_reason && (
+                  <p className="mt-1 inline-block rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
+                    🤝 {c.collab_reason}
+                  </p>
+                )}
               </div>
               <div className="flex shrink-0 items-center gap-3">
                 <div className="text-right">

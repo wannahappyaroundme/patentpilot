@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import type { PatentRow } from "@/lib/types";
 import { formatNumber, urgencyLabel } from "@/lib/format";
+import { TrackedLink } from "@/components/tracked-link";
 
 const URGENCY_STYLE: Record<PatentRow["urgency"], string> = {
   RED: "bg-red-50 text-red-700 ring-red-100",
@@ -47,15 +48,16 @@ export function PatentCard({ p }: { p: PatentRow }) {
           )}
         </div>
         {p.kipris_link && (
-          <a
+          <TrackedLink
             href={p.kipris_link}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="KIPRIS 원문 새 창"
+            external
+            event="kipris_open"
+            meta={{ appNo: p.application_number, source: "card" }}
+            ariaLabel="KIPRIS 원문 새 창"
             className="shrink-0 rounded-md p-1 text-ink-300 hover:bg-ink-50 hover:text-brand"
           >
             <ExternalLink size={16} />
-          </a>
+          </TrackedLink>
         )}
       </div>
 

@@ -24,14 +24,15 @@ def main():
 
     for _, r in companies.iterrows():
         cur.execute(
-            """insert into public.companies (name, industry, description, revenue_band, website)
-               values (%s, %s, %s, %s, %s) returning id""",
+            """insert into public.companies (name, industry, description, revenue_band, website, aliases)
+               values (%s, %s, %s, %s, %s, %s) returning id""",
             (
                 r["name"],
                 r["industry"],
                 r["description"],
                 r["revenue_band"],
                 r["website"],
+                r.get("aliases", "") if "aliases" in r else "",
             ),
         )
 

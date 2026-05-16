@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import "./globals.css";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+import { PageViewTracker } from "@/components/page-view-tracker";
+import { SiteChrome } from "@/components/site-chrome";
 
 export const metadata: Metadata = {
   title: "PatentPilot — 잠자는 한국 R&D 특허를 깨우는 매칭 코파일럿",
@@ -22,9 +23,10 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className="bg-background text-ink-900 antialiased">
-        <Header />
-        <main className="container">{children}</main>
-        <Footer />
+        <Suspense fallback={null}>
+          <PageViewTracker />
+        </Suspense>
+        <SiteChrome>{children}</SiteChrome>
       </body>
     </html>
   );

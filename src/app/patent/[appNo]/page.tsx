@@ -5,6 +5,7 @@ import { ExternalLink, ArrowLeft } from "lucide-react";
 import { getPatentByAppNo } from "@/lib/patents";
 import { PatentMeta } from "@/components/patent-meta";
 import { MatchCandidates } from "@/components/match-candidates";
+import { TrackedLink } from "@/components/tracked-link";
 
 export const revalidate = 300;
 
@@ -53,15 +54,16 @@ export default async function PatentDetailPage({
               원문 확인
             </div>
             {p.kipris_link ? (
-              <a
+              <TrackedLink
                 href={p.kipris_link}
-                target="_blank"
-                rel="noopener noreferrer"
+                external
+                event="kipris_open"
+                meta={{ appNo: p.application_number, source: "detail" }}
                 className="mt-3 flex items-center justify-between rounded-md bg-brand px-4 py-3 text-sm font-semibold text-white hover:bg-brand-600"
               >
                 KIPRIS 공식 원문 보기
                 <ExternalLink size={16} />
-              </a>
+              </TrackedLink>
             ) : (
               <p className="mt-3 text-sm text-ink-500">원문 링크가 없습니다.</p>
             )}
@@ -77,12 +79,13 @@ export default async function PatentDetailPage({
             <p className="mt-2 text-sm text-ink-700">
               매수 의사가 있다면 거래 신청을 보내세요. 매도 기관 컨택과 가격 협상을 PatentPilot이 중개합니다.
             </p>
-            <Link
+            <TrackedLink
               href={`/apply?appNo=${encodeURIComponent(p.application_number)}`}
+              meta={{ target: "apply_cta", appNo: p.application_number }}
               className="mt-4 inline-flex w-full items-center justify-center rounded-md bg-ink-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-ink-700"
             >
               이 매물 거래 신청하기
-            </Link>
+            </TrackedLink>
           </div>
 
           <div className="rounded-2xl border border-ink-100 bg-white p-5">

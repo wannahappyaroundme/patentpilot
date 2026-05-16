@@ -26,6 +26,7 @@ export interface PatentRow {
   family_count: number;
   citation_count: number;
   transfer_count: number;
+  transfer_events: number;
   legal_status: string;
   rnd_department: string;
   kipris_link: string;

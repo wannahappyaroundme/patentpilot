@@ -2,6 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Search } from "lucide-react";
+import { track } from "@/lib/analytics";
 
 export function SearchBar() {
   const router = useRouter();
@@ -11,6 +12,7 @@ export function SearchBar() {
     e.preventDefault();
     const v = q.trim();
     if (!v) return;
+    track("search", { q: v, source: "hero" });
     router.push(`/market?q=${encodeURIComponent(v)}`);
   }
 

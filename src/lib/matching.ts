@@ -20,7 +20,11 @@ export interface CompanyMatch {
   website: string;
   matched_ipc: string;
   ipc_weight: number;
+  ipc_score: number;
+  revenue_score: number;
+  collab_score: number;
   score: number;
+  collab_reason: string;
 }
 
 function ipcPrefixes(ipcRaw: string): string[] {
@@ -36,9 +40,44 @@ function ipcPrefixes(ipcRaw: string): string[] {
   );
 }
 
+function companyKeywords(c: {
+  name: string;
+  aliases: string;
+}): string[] {
+  const out: string[] = [c.name];
+  if (c.aliases) {
+    for (const tok of c.aliases.split(/[|,]/)) {
+      const t = tok.trim();
+      if (t) out.push(t);
+    }
+  }
+  return Array.from(new Set(out));
+}
+
+function collabScoreFor(
+  patent: PatentRow,
+  keywords: string[],
+): { score: number; reason: string } {
+  const haystack = [patent.applicant, patent.rnd_department].join(" ");
+  for (const kw of keywords) {
+    if (kw.length < 2) continue;
+    if (haystack.includes(kw)) {
+      return { score: 20, reason: `공동출원/R&D 사업명에 "${kw}" 등장` };
+    }
+  }
+  if (patent.transfer_events >= 3) {
+    return { score: 10, reason: `이전 이벤트 ${patent.transfer_events}회 — 권리 이동 활발` };
+  }
+  if (patent.transfer_events >= 1) {
+    return { score: 5, reason: "이전 이벤트 기록 있음" };
+  }
+  return { score: 0, reason: "" };
+}
+
 /**
- * IPC 적합도 60% + R&D 규모 20% + 협력 이력 20% 룰베이스 매칭.
- * 현재 협력 이력 데이터는 외부 보강 전이라 IPC + 규모로 점수 계산.
+ * IPC 적합도 60 + R&D 규모 20 + 협력 이력 20.
+ * - aliases가 patent.applicant 또는 rnd_department에 포함되면 +20
+ * - 그 외 transfer_events ≥ 3 / ≥ 1 에 따라 가산점
  */
 export async function matchCompanies(
   patent: PatentRow,
@@ -57,14 +96,13 @@ export async function matchCompanies(
   const { data, error } = await sb
     .from("ipc_company")
     .select(
-      "ipc_prefix,weight,note,companies(id,name,industry,description,revenue_band,website)",
+      "ipc_prefix,weight,note,companies(id,name,industry,description,revenue_band,website,aliases)",
     )
     .or(prefixOrs)
-    .limit(80);
+    .limit(150);
 
   if (error || !data) return [];
 
-  const byCompany = new Map<number, CompanyMatch>();
   type Joined = {
     ipc_prefix: string;
     weight: number | string;
@@ -77,6 +115,7 @@ export async function matchCompanies(
           description: string;
           revenue_band: string;
           website: string;
+          aliases: string;
         }
       | Array<{
           id: number;
@@ -85,18 +124,27 @@ export async function matchCompanies(
           description: string;
           revenue_band: string;
           website: string;
+          aliases: string;
         }>
       | null;
   };
+
+  const byCompany = new Map<number, CompanyMatch>();
   for (const row of data as unknown as Joined[]) {
     const c = Array.isArray(row.companies) ? row.companies[0] : row.companies;
     if (!c) continue;
-    const ipcScore = Number(row.weight) * 60; // 0~60
-    const revenueScore = parseRevenueScore(c.revenue_band); // 0~20
-    const collabScore = 0; // 데이터 보강 전: 향후 transfers/rndDepartment join 시 가산
-    const score = Math.round(ipcScore + revenueScore + collabScore);
+
+    const ipcScore = Math.round(Number(row.weight) * 60);
+    const revenueScore = parseRevenueScore(c.revenue_band);
+    const keywords = companyKeywords(c);
+    const { score: collabScore, reason: collabReason } = collabScoreFor(
+      patent,
+      keywords,
+    );
+    const total = ipcScore + revenueScore + collabScore;
+
     const existing = byCompany.get(c.id);
-    if (!existing || existing.score < score) {
+    if (!existing || existing.score < total) {
       byCompany.set(c.id, {
         company_id: c.id,
         name: c.name,
@@ -106,7 +154,11 @@ export async function matchCompanies(
         website: c.website,
         matched_ipc: row.ipc_prefix,
         ipc_weight: Number(row.weight),
-        score,
+        ipc_score: ipcScore,
+        revenue_score: revenueScore,
+        collab_score: collabScore,
+        score: total,
+        collab_reason: collabReason,
       });
     }
   }

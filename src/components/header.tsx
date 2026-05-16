@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Search } from "lucide-react";
+import { Logo } from "./logo";
 
 export function Header() {
   return (
@@ -7,25 +8,8 @@ export function Header() {
       <div className="container flex h-14 items-center justify-between">
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center" aria-label="PatentPilot">
-            <svg
-              width="180"
-              height="26"
-              viewBox="0 0 210 30"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              <text
-                x="0"
-                y="22"
-                fontFamily="Pretendard, sans-serif"
-                fontWeight="800"
-                fontSize="22"
-                fill="#006EFF"
-              >
-                PatentPilot
-              </text>
-            </svg>
+            <Logo variant="full" height={26} className="hidden sm:block" />
+            <Logo variant="mark" height={28} className="sm:hidden" />
           </Link>
           <nav className="hidden items-center gap-7 text-sm font-medium text-ink-700 md:flex">
             <Link href="/market" className="hover:text-brand">매물</Link>

@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { CheckCircle2 } from "lucide-react";
+import { track } from "@/lib/analytics";
 
 interface Props {
   defaultAppNo?: string;
@@ -29,6 +30,11 @@ export function LoiForm({ defaultAppNo }: Props) {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? "신청 실패");
+      track("loi_submit", {
+        application_id: json.id,
+        appNo: body.patent_application_number ?? "",
+        company_name: body.company_name ?? "",
+      });
       setSuccess(
         `거래 신청이 정상 접수되었습니다. (#${json.id}) 영업일 2일 이내 회신드립니다.`,
       );

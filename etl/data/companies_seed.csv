@@ -1,31 +1,84 @@
-name,industry,description,revenue_band,website
-LG에너지솔루션,배터리,EV·ESS 리튬이온 배터리 글로벌 1위,30조+,https://www.lgensol.com
-삼성SDI,배터리,EV·ESS 배터리 및 전자재료,20조+,https://www.samsungsdi.co.kr
-SK온,배터리,EV 배터리,10조+,https://www.sk-on.com
-포스코퓨처엠,배터리 소재,양극재·음극재·내화물,5조+,https://www.poscofuturem.com
-에코프로비엠,배터리 소재,하이니켈 양극재,7조+,https://www.ecoprobm.co.kr
-삼성전자,반도체·가전,종합 반도체·디스플레이·가전,300조+,https://www.samsung.com
-SK하이닉스,반도체,메모리 반도체 (DRAM/NAND),60조+,https://www.skhynix.com
-DB하이텍,반도체,파운드리,2조+,https://www.dbhitek.com
-LX세미콘,반도체,디스플레이 구동 IC,2조+,https://www.lxsemicon.com
-삼성바이오로직스,바이오,바이오 CDMO,3조+,https://www.samsungbiologics.com
-셀트리온,바이오,바이오시밀러,3조+,https://www.celltrion.com
-한미약품,바이오,신약 개발 제약,1조+,https://www.hanmi.co.kr
-유한양행,바이오,제약·신약,2조+,https://www.yuhan.co.kr
-GC녹십자,바이오,혈액제제·백신,1조+,https://www.greencross.com
-LG디스플레이,디스플레이,OLED·LCD 패널,20조+,https://www.lgdisplay.com
-삼성디스플레이,디스플레이,OLED 패널,30조+,https://www.samsungdisplay.com
-한화솔루션,에너지·화학,태양광·케미칼,10조+,https://www.hanwhasolutions.com
-두산퓨얼셀,수소·연료전지,수소연료전지,5천억+,https://www.doosanfuelcell.com
-효성첨단소재,소재,타이어코드·탄소섬유,3조+,https://www.hyosungadvancedmaterials.com
-LG화학,화학,종합 화학·바이오,50조+,https://www.lgchem.com
-한화에어로스페이스,항공·방산,항공엔진·방산,5조+,https://www.hanwhaaerospace.co.kr
-포스코홀딩스,철강·소재,철강·이차전지 소재,80조+,https://www.posco-inc.com
-현대자동차,모빌리티,자동차 OEM,150조+,https://www.hyundai.com
-기아,모빌리티,자동차 OEM,100조+,https://www.kia.com
-현대모비스,모빌리티 부품,핵심 모듈·전장,50조+,https://www.mobis.co.kr
-한국타이어앤테크놀로지,타이어,승용·상용 타이어,8조+,https://www.hankooktire.com
-LG전자,가전·전장,가전·전장·B2B,80조+,https://www.lge.co.kr
-삼성중공업,조선·해양,LNG선·해양 플랜트,10조+,https://www.samsungshi.com
-HD한국조선해양,조선·해양,조선 통합 지주,20조+,https://www.hd.com
-KT,통신·AI,통신·클라우드·AI,25조+,https://www.kt.com
+name,industry,description,revenue_band,website,aliases
+LG에너지솔루션,배터리,EV·ESS 리튬이온 배터리 글로벌 1위,30조+,https://www.lgensol.com,엘지에너지솔루션|LGES|엘지엔솔
+삼성SDI,배터리,EV·ESS 배터리 및 전자재료,20조+,https://www.samsungsdi.co.kr,삼성에스디아이|삼성디에스아이
+SK온,배터리,EV 배터리,10조+,https://www.sk-on.com,에스케이온|에스케이이노베이션
+포스코퓨처엠,배터리 소재,양극재·음극재·내화물,5조+,https://www.poscofuturem.com,포스코케미칼|피엠씨
+에코프로비엠,배터리 소재,하이니켈 양극재,7조+,https://www.ecoprobm.co.kr,에코프로
+엘앤에프,배터리 소재,양극재,3조+,https://www.landf.co.kr,L&F
+SKC,배터리 소재,동박·CMP,2조+,https://www.skcinc.com,에스케이씨
+일진머티리얼즈,배터리 소재,일렉포일·동박,8천억+,https://www.iljinmaterials.co.kr,일진
+대주전자재료,배터리 소재,실리콘 음극재,3천억+,https://www.daejoo.co.kr,대주
+삼성전자,반도체·가전,종합 반도체·디스플레이·가전,300조+,https://www.samsung.com,삼성전자주식회사
+SK하이닉스,반도체,메모리 반도체 (DRAM/NAND),60조+,https://www.skhynix.com,에스케이하이닉스|하이닉스
+DB하이텍,반도체,파운드리,2조+,https://www.dbhitek.com,동부하이텍
+LX세미콘,반도체,디스플레이 구동 IC,2조+,https://www.lxsemicon.com,실리콘웍스
+원익IPS,반도체 장비,식각·증착 장비,2조+,https://www.wonik-ips.com,원익
+세메스,반도체 장비,세정·검사 장비,3조+,https://www.semes.com,SEMES
+주성엔지니어링,반도체 장비,ALD·CVD 장비,3천억+,https://www.jseng.com,주성
+이오테크닉스,반도체 장비,레이저 마킹,4천억+,https://www.eotech.com,이오
+삼성바이오로직스,바이오,바이오 CDMO,3조+,https://www.samsungbiologics.com,삼성바이오
+셀트리온,바이오,바이오시밀러,3조+,https://www.celltrion.com,셀트리온홀딩스
+한미약품,바이오,신약 개발 제약,1조+,https://www.hanmi.co.kr,한미
+유한양행,바이오,제약·신약,2조+,https://www.yuhan.co.kr,유한
+GC녹십자,바이오,혈액제제·백신,1조+,https://www.greencross.com,녹십자|지씨녹십자
+대웅제약,바이오,신약·제네릭,1조+,https://www.daewoong.co.kr,대웅
+종근당,바이오,제약,1조+,https://www.ckdpharm.com,종근당홀딩스
+SK바이오팜,바이오,중추신경계 신약,2천억+,https://www.skbp.com,에스케이바이오팜
+SK바이오사이언스,바이오,백신 CDMO,5천억+,https://www.skbioscience.com,에스케이바이오사이언스
+HK이노엔,바이오,신약·HK0211,8천억+,https://www.inno-n.com,에이치케이이노엔
+삼양홀딩스,바이오·화학,의약·소재,3조+,https://www.samyangholdings.com,삼양
+LG디스플레이,디스플레이,OLED·LCD 패널,20조+,https://www.lgdisplay.com,엘지디스플레이
+삼성디스플레이,디스플레이,OLED 패널,30조+,https://www.samsungdisplay.com,삼디|SDC
+한화솔루션,에너지·화학,태양광·케미칼,10조+,https://www.hanwhasolutions.com,한화케미칼
+두산퓨얼셀,수소·연료전지,수소연료전지,5천억+,https://www.doosanfuelcell.com,두산
+효성첨단소재,소재,타이어코드·탄소섬유,3조+,https://www.hyosungadvancedmaterials.com,효성|효성티앤씨
+LG화학,화학,종합 화학·바이오,50조+,https://www.lgchem.com,엘지화학
+한화에어로스페이스,항공·방산,항공엔진·방산,5조+,https://www.hanwhaaerospace.co.kr,한화테크윈|한화
+LIG넥스원,방산,유도무기·전자전,3조+,https://www.lignex1.com,엘아이지넥스원
+한국항공우주산업,항공·방산,항공기 OEM,3조+,https://www.koreaaero.com,KAI
+포스코홀딩스,철강·소재,철강·이차전지 소재,80조+,https://www.posco-inc.com,포스코|POSCO
+현대제철,철강,철강,30조+,https://www.hyundai-steel.com,현대제철주식회사
+현대자동차,모빌리티,자동차 OEM,150조+,https://www.hyundai.com,현대차|현대자동차주식회사
+기아,모빌리티,자동차 OEM,100조+,https://www.kia.com,기아자동차
+현대모비스,모빌리티 부품,핵심 모듈·전장,50조+,https://www.mobis.co.kr,모비스
+현대위아,모빌리티 부품,파워트레인·공작기계,8조+,https://www.hyundai-wia.com,위아
+만도,모빌리티 부품,섀시·전동화 시스템,7조+,https://www.mando.com,주식회사 만도
+한온시스템,모빌리티 부품,열관리,8조+,https://www.hanonsystems.com,한온
+한국타이어앤테크놀로지,타이어,승용·상용 타이어,8조+,https://www.hankooktire.com,한국타이어
+넥센타이어,타이어,승용 타이어,2조+,https://www.nexentire.com,넥센
+LG전자,가전·전장,가전·전장·B2B,80조+,https://www.lge.co.kr,엘지전자
+LG이노텍,전자부품,카메라모듈·반도체기판,20조+,https://www.lginnotek.com,엘지이노텍
+삼성전기,전자부품,MLCC·기판,9조+,https://www.samsungsem.com,삼성전기주식회사
+삼성중공업,조선·해양,LNG선·해양 플랜트,10조+,https://www.samsungshi.com,삼중
+HD한국조선해양,조선·해양,조선 통합 지주,20조+,https://www.hd.com,한국조선해양|HD현대|에이치디한국조선해양
+HD현대중공업,조선·해양,선박·엔진,10조+,https://www.hdkshi.com,현대중공업|에이치디현대중공업
+한화오션,조선·해양,LNG·특수선,8조+,https://www.hanwhaocean.com,대우조선해양
+KT,통신·AI,통신·클라우드·AI,25조+,https://www.kt.com,주식회사 케이티|케이티
+SK텔레콤,통신,통신·AI,18조+,https://www.sktelecom.com,에스케이텔레콤
+LG유플러스,통신,통신·미디어,14조+,https://www.lguplus.com,엘지유플러스
+NAVER,IT 플랫폼,검색·커머스·핀테크,9조+,https://www.navercorp.com,네이버
+카카오,IT 플랫폼,메신저·핀테크·콘텐츠,8조+,https://www.kakaocorp.com,카카오주식회사
+NHN,IT 플랫폼,게임·클라우드·결제,2조+,https://www.nhn.com,엔에이치엔
+삼성SDS,IT 서비스,클라우드·물류,15조+,https://www.samsungsds.com,삼성에스디에스
+LG CNS,IT 서비스,클라우드·DX,5조+,https://www.lgcns.com,엘지씨엔에스
+신세계I&C,IT 서비스,리테일테크,5천억+,https://www.shinsegae-inc.com,신세계아이앤씨
+넷마블,게임,모바일 게임,2조+,https://www.netmarble.com,넷마블게임즈
+엔씨소프트,게임,MMORPG,2조+,https://www.ncsoft.com,NC소프트
+크래프톤,게임,배틀로얄,2조+,https://www.krafton.com,KRAFTON
+컴투스,게임,모바일 게임,7천억+,https://www.com2us.com,컴투스홀딩스
+CJ제일제당,식품,식품·바이오·사료,30조+,https://www.cj.co.kr,씨제이제일제당
+오뚜기,식품,라면·조미료,3조+,https://www.ottogi.co.kr,오뚜기주식회사
+농심,식품,라면·스낵,3조+,https://www.nongshim.com,농심주식회사
+SPC삼립,식품,베이커리,4조+,https://www.spcsamlip.co.kr,SPC|에스피씨삼립
+아모레퍼시픽,화장품,종합 화장품,4조+,https://www.apgroup.com,아모레
+LG생활건강,화장품·생활,화장품·생활용품,7조+,https://www.lghnh.com,엘지생활건강
+코웨이,생활가전·헬스케어,정수기·매트리스,4조+,https://www.coway.co.kr,코웨이주식회사
+SK이노베이션,에너지,정유·배터리·소재,80조+,https://www.skinnovation.com,에스케이이노베이션
+S-Oil,에너지,정유·화학,40조+,https://www.s-oil.com,에쓰오일|에스오일
+GS칼텍스,에너지,정유,40조+,https://www.gscaltex.com,지에스칼텍스
+한국전력공사,에너지,전력 공급,80조+,https://www.kepco.co.kr,KEPCO|한전
+두산에너빌리티,에너지·중공업,발전·원전·풍력,7조+,https://www.doosanenerbility.com,두산중공업
+현대건설,건설,종합 건설,30조+,https://www.hdec.kr,현대건설주식회사
+GS건설,건설,종합 건설,15조+,https://www.gsconst.co.kr,지에스건설
+삼성물산,건설·상사,건설·종합상사,40조+,https://www.samsungcnt.com,삼성물산주식회사
+대림코퍼레이션,화학·소재,석유화학,2조+,https://www.daelim.com,대림산업
