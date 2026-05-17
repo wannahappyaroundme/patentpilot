@@ -23,11 +23,19 @@ export function Footer() {
             </ul>
           </div>
           <div>
-            <div className="text-xs font-semibold uppercase tracking-wide text-ink-500">거래</div>
+            <div className="text-xs font-semibold uppercase tracking-wide text-ink-500">거래·문의</div>
             <ul className="mt-3 space-y-1.5 text-ink-700">
               <li><Link href="/list" className="hover:text-brand">매물 등록 (매도)</Link></li>
               <li><Link href="/apply" className="hover:text-brand">거래 신청 (매수)</Link></li>
               <li><Link href="/about" className="hover:text-brand">서비스 소개</Link></li>
+              <li>
+                <a
+                  href="mailto:ethos614@gmail.com?subject=PatentPilot%20%EB%AC%B8%EC%9D%98"
+                  className="hover:text-brand"
+                >
+                  이메일 문의
+                </a>
+              </li>
               <li>
                 <a
                   href="https://github.com/wannahappyaroundme/patentpilot"
@@ -39,6 +47,15 @@ export function Footer() {
                 </a>
               </li>
             </ul>
+            <div className="mt-3 rounded-md bg-ink-50 px-3 py-2 text-xs text-ink-500">
+              <div className="font-medium text-ink-700">업무 협약·데이터 문의</div>
+              <a
+                href="mailto:ethos614@gmail.com"
+                className="text-brand hover:underline"
+              >
+                ethos614@gmail.com
+              </a>
+            </div>
           </div>
         </div>
         <div className="mt-10 flex flex-wrap items-center justify-between gap-2 border-t border-ink-100 pt-5 text-xs text-ink-400">

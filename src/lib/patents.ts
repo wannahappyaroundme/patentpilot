@@ -32,9 +32,13 @@ export interface SearchResult {
 
 const URGENCY_ORDER: Record<Urgency, number> = { RED: 0, YELLOW: 1, GREEN: 2 };
 
+// 스크래핑 방지: 페이지/페이지당 행수 상한 강제
+const MAX_PAGE = 500;
+const MAX_PER_PAGE = 30;
+
 export async function searchPatents(p: SearchParams): Promise<SearchResult> {
-  const page = Math.max(1, p.page ?? 1);
-  const perPage = Math.min(60, Math.max(10, p.perPage ?? 20));
+  const page = Math.min(MAX_PAGE, Math.max(1, p.page ?? 1));
+  const perPage = Math.min(MAX_PER_PAGE, Math.max(10, p.perPage ?? 20));
   const from = (page - 1) * perPage;
   const to = from + perPage - 1;
 

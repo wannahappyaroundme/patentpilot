@@ -37,6 +37,20 @@ export default function AboutPage() {
         </ul>
       </section>
 
+      <section className="rounded-2xl border border-brand-100 bg-brand-50/40 p-8">
+        <h2 className="text-xl font-bold">문의 · 업무 협약 · 데이터 문의</h2>
+        <p className="mt-3 text-sm text-ink-700">
+          서비스 협업, 매물 데이터 제휴, TLO/정출연 파트너십, 매수 기업 확장, 투자/엑셀러레이팅, 미디어 인터뷰 등 모든 문의는 아래 이메일로 보내주세요.
+        </p>
+        <a
+          href="mailto:ethos614@gmail.com?subject=PatentPilot%20%EB%AC%B8%EC%9D%98"
+          className="mt-5 inline-flex items-center gap-2 rounded-md bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-600"
+        >
+          📧 ethos614@gmail.com 으로 문의하기
+        </a>
+        <p className="mt-3 text-xs text-ink-500">영업일 기준 2일 이내 회신드립니다.</p>
+      </section>
+
       <div className="text-center">
         <Link
           href="/"

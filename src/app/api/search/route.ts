@@ -38,5 +38,11 @@ export async function GET(req: NextRequest) {
     perPage: Number(sp.get("perPage")) || 20,
     sort: parseSort(sp.get("sort")),
   });
-  return NextResponse.json(result);
+  return NextResponse.json(result, {
+    headers: {
+      // 스크래핑 방지: 캐시 무효화 + 검색엔진 색인 차단
+      "Cache-Control": "private, no-store, max-age=0",
+      "X-Robots-Tag": "noindex, nofollow",
+    },
+  });
 }

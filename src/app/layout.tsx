@@ -5,6 +5,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { PageViewTracker } from "@/components/page-view-tracker";
 import { SiteChrome } from "@/components/site-chrome";
+import { ConsoleShield } from "@/components/console-shield";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://patentpilot-livid.vercel.app"),
@@ -122,6 +123,7 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-background text-ink-900 antialiased">
+        <ConsoleShield />
         <Suspense fallback={null}>
           <PageViewTracker />
         </Suspense>
