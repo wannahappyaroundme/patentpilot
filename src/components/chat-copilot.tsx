@@ -13,6 +13,15 @@ const MAX_SAVED = 40;
 
 type Role = "user" | "assistant";
 
+interface IntentParamsLite {
+  q?: string;
+  urgency?: string;
+  org?: string;
+  ipc?: string;
+  university?: string;
+  sort?: string;
+}
+
 interface Message {
   id: string;
   role: Role;
@@ -23,6 +32,7 @@ interface Message {
   total?: number;
   source?: "llm" | "rule";
   model?: string;
+  searchParams?: IntentParamsLite;
 }
 
 const WELCOME: Message = {
@@ -113,6 +123,7 @@ export function ChatCopilot() {
         body: JSON.stringify({ q, history }),
       });
       const json = await res.json();
+      const params = json.intent?.params ?? {};
       const assistantMsg: Message = {
         id: `a-${Date.now()}`,
         role: "assistant",
@@ -123,6 +134,15 @@ export function ChatCopilot() {
         total: json.total,
         source: json.source,
         model: json.model,
+        searchParams: {
+          q: typeof params.q === "string" ? params.q : undefined,
+          urgency: typeof params.urgency === "string" ? params.urgency : undefined,
+          org: typeof params.org === "string" ? params.org : undefined,
+          ipc: typeof params.ipc === "string" ? params.ipc : undefined,
+          university:
+            typeof params.university === "string" ? params.university : undefined,
+          sort: typeof params.sort === "string" ? params.sort : undefined,
+        },
       };
       setMessages((m) => [...m, assistantMsg]);
     } catch {
@@ -302,9 +322,18 @@ function Bubble({
   );
 }
 
-function buildMarketHref(_m: Message): string {
-  // 채팅 응답에 사용된 intent를 직접 알 수 없으므로 안전한 fallback
-  return "/market";
+function buildMarketHref(m: Message): string {
+  const p = m.searchParams;
+  if (!p) return "/market";
+  const sp = new URLSearchParams();
+  if (p.q) sp.set("q", p.q);
+  if (p.urgency && p.urgency !== "ALL") sp.set("urgency", p.urgency);
+  if (p.org && p.org !== "ALL") sp.set("org", p.org);
+  if (p.ipc) sp.set("ipc", p.ipc);
+  if (p.university) sp.set("university", p.university);
+  if (p.sort && p.sort !== "urgency") sp.set("sort", p.sort);
+  const query = sp.toString();
+  return query ? `/market?${query}` : "/market";
 }
 
 function RichText({ text }: { text: string }) {
