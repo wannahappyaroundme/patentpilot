@@ -1,7 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
 
-const VALID_STATUSES = new Set(["pending", "reviewing", "listed", "rejected"]);
+const VALID_STATUSES = ["pending", "reviewing", "listed", "rejected"] as const;
+type Status = (typeof VALID_STATUSES)[number];
+function isValidStatus(s: string): s is Status {
+  return (VALID_STATUSES as readonly string[]).includes(s);
+}
 
 export async function DELETE(
   _req: NextRequest,
@@ -40,9 +44,9 @@ export async function PATCH(
     return NextResponse.json({ error: "invalid JSON" }, { status: 400 });
   }
   const status = (body.status ?? "").trim();
-  if (!VALID_STATUSES.has(status)) {
+  if (!isValidStatus(status)) {
     return NextResponse.json(
-      { error: `status는 ${[...VALID_STATUSES].join(", ")} 중 하나여야 합니다.` },
+      { error: `status는 ${VALID_STATUSES.join(", ")} 중 하나여야 합니다.` },
       { status: 400 },
     );
   }

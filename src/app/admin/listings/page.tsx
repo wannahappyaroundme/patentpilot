@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createServiceClient } from "@/lib/supabase";
 import { AdminDeleteButton } from "@/components/admin-delete-button";
+import { ListingStatusSelector } from "@/components/listing-status-selector";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -134,13 +135,13 @@ export default async function AdminListingsPage() {
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    <span
-                      className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
-                        STATUS_STYLE[r.status] ?? "bg-ink-50 text-ink-700"
-                      }`}
-                    >
-                      {r.status}
-                    </span>
+                    <ListingStatusSelector id={r.id} initial={r.status} />
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <AdminDeleteButton
+                      endpoint={`/api/admin/listings/${r.id}`}
+                      confirmText={`매물 등록 #${r.id} (${r.title.slice(0, 30)})을(를) 삭제하시겠어요?`}
+                    />
                   </td>
                 </tr>
               ))}

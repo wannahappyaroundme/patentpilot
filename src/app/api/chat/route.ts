@@ -119,14 +119,51 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(res);
   }
 
-  const result = await searchPatents(intent.params);
+  // 단계적 검색: 처음 0건이면 기관 → IPC → org 순으로 완화
+  let result = await searchPatents(intent.params);
+  const relaxedSteps: string[] = [];
+  if (result.total === 0 && intent.params.university) {
+    const r = await searchPatents({ ...intent.params, university: undefined });
+    if (r.total > 0) {
+      result = r;
+      relaxedSteps.push("기관명 정확 일치가 없어 기관 조건을 풀었어요");
+    }
+  }
+  if (result.total === 0 && intent.params.ipc) {
+    const r = await searchPatents({
+      ...intent.params,
+      university: undefined,
+      ipc: undefined,
+    });
+    if (r.total > 0) {
+      result = r;
+      relaxedSteps.push("IPC도 풀어서 검색했어요");
+    }
+  }
+  if (result.total === 0 && intent.params.org && intent.params.org !== "ALL") {
+    const r = await searchPatents({
+      q: intent.params.q,
+      sort: intent.params.sort,
+      perPage: intent.params.perPage,
+    });
+    if (r.total > 0) {
+      result = r;
+      relaxedSteps.push("기관 유형도 풀어서 전체에서 찾았어요");
+    }
+  }
+
   const hintText = intent.labelHints.length
     ? `**${intent.labelHints.join(" · ")}** 조건으로 `
     : "";
-  const reply =
-    result.total === 0
-      ? `${hintText}매물을 찾지 못했어요. 조건을 더 풀어보세요.`
-      : `${hintText}활성 매물 **${result.total.toLocaleString("ko-KR")}건**을 찾았어요. 관련도 높은 순으로 ${result.rows.length}건을 보여드립니다.`;
+  let reply: string;
+  if (result.total === 0) {
+    reply = `${hintText}매물을 찾지 못했어요. 검색어를 짧게 줄이거나 IPC/기관 조건을 빼고 다시 시도해보세요.`;
+  } else {
+    reply = `${hintText}활성 매물 **${result.total.toLocaleString("ko-KR")}건**을 찾았어요. 관련도 높은 순으로 ${result.rows.length}건을 보여드립니다.`;
+    if (relaxedSteps.length) {
+      reply += `\n\n_💡 ${relaxedSteps.join(" / ")}._`;
+    }
+  }
 
   const res: ChatResponse = {
     kind: "search",
