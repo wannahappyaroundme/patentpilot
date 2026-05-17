@@ -2,6 +2,7 @@ import { FiltersSidebar } from "@/components/filters-sidebar";
 import { PatentCard } from "@/components/patent-card";
 import { Pagination } from "@/components/pagination";
 import { PrintButton } from "@/components/print-button";
+import { PrintHeader } from "@/components/print-header";
 import { searchPatents } from "@/lib/patents";
 import { formatNumber } from "@/lib/format";
 import type { Urgency, OrgType } from "@/lib/types";
@@ -19,7 +20,14 @@ function asOrg(v: string | undefined): OrgType | "ALL" {
   return v === "UNIV" || v === "GRI" || v === "OTHER" ? (v as OrgType) : "ALL";
 }
 function asSort(v: string | undefined) {
-  if (v === "recent" || v === "citations" || v === "claims" || v === "urgency") return v;
+  if (
+    v === "recent" ||
+    v === "citations" ||
+    v === "claims" ||
+    v === "transfers" ||
+    v === "urgency"
+  )
+    return v;
   return "urgency" as const;
 }
 
@@ -54,6 +62,10 @@ export default async function MarketPage({
 
   return (
     <div className="py-8">
+      <PrintHeader
+        title="PatentPilot — 매물 검색 결과"
+        subtitle={`총 ${formatNumber(result.total)}건 · 필터: urgency=${sp("urgency") ?? "ALL"} org=${sp("org") ?? "ALL"} ipc=${sp("ipc") ?? "ALL"} q=${sp("q") ?? "-"}`}
+      />
       <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold sm:text-3xl">매물 찾기</h1>
@@ -91,7 +103,7 @@ export default async function MarketPage({
           ) : (
             <ul className="grid gap-4 sm:grid-cols-2">
               {result.rows.map((p) => (
-                <li key={p.application_number}>
+                <li key={p.application_number} className="flex">
                   <PatentCard p={p} />
                 </li>
               ))}

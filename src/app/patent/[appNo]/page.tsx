@@ -8,6 +8,8 @@ import { MatchCandidates } from "@/components/match-candidates";
 import { RelatedPatents } from "@/components/related-patents";
 import { TrackedLink } from "@/components/tracked-link";
 import { FavoriteButton } from "@/components/favorite-button";
+import { PrintButton } from "@/components/print-button";
+import { PrintHeader } from "@/components/print-header";
 
 export const revalidate = 300;
 
@@ -35,13 +37,20 @@ export default async function PatentDetailPage({
 
   return (
     <div className="py-8">
-      <Link
-        href="/market"
-        className="mb-6 inline-flex items-center gap-1 text-sm text-ink-500 hover:text-brand"
-      >
-        <ArrowLeft size={16} />
-        매물 목록으로
-      </Link>
+      <PrintHeader
+        title="PatentPilot — 매물 정보"
+        subtitle={`${p.title} · ${p.application_number}`}
+      />
+      <div className="mb-6 flex items-center justify-between gap-3">
+        <Link
+          href="/market"
+          className="inline-flex items-center gap-1 text-sm text-ink-500 hover:text-brand"
+        >
+          <ArrowLeft size={16} />
+          매물 목록으로
+        </Link>
+        <PrintButton label="매물 PDF로 저장" target="patent_print" />
+      </div>
 
       <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
         <div className="space-y-8">
@@ -52,7 +61,7 @@ export default async function PatentDetailPage({
           <RelatedPatents patent={p} />
         </div>
 
-        <aside className="space-y-4 lg:sticky lg:top-20 lg:self-start">
+        <aside className="space-y-4 lg:sticky lg:top-20 lg:self-start no-print">
           <div className="rounded-2xl border border-ink-100 bg-white p-5">
             <div className="text-xs font-semibold uppercase tracking-wide text-ink-500">
               원문 확인

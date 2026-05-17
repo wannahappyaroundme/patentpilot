@@ -26,7 +26,7 @@ export function PatentCard({ p }: { p: PatentRow }) {
       : null;
 
   return (
-    <article className="group relative rounded-2xl border border-ink-100 bg-white p-5 transition hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-card">
+    <article className="group relative flex h-full flex-col rounded-2xl border border-ink-100 bg-white p-5 transition hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-card">
       <div className="flex items-start justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
           <span
@@ -67,9 +67,9 @@ export function PatentCard({ p }: { p: PatentRow }) {
 
       <Link
         href={`/patent/${encodeURIComponent(p.application_number)}`}
-        className="mt-3 block"
+        className="mt-3 flex flex-1 flex-col"
       >
-        <h3 className="line-clamp-2 text-base font-semibold text-ink-900 group-hover:text-brand">
+        <h3 className="line-clamp-2 min-h-[2.8em] text-base font-semibold text-ink-900 group-hover:text-brand">
           {p.title || p.application_number}
         </h3>
         <p className="mt-1 line-clamp-1 text-sm text-ink-500">

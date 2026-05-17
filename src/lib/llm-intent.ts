@@ -50,11 +50,12 @@ async function callOpenAi(
     const { default: OpenAI } = await import("openai");
     const client = new OpenAI({ apiKey: key });
 
-    // 모델 체인: OPENAI_CHAT_MODEL 우선 → gpt-5.5 → gpt-5.4-mini → gpt-4.1-mini
+    // 모델 체인: OPENAI_CHAT_MODEL 우선 → 5.5-nano → 5.4-nano → 5.4-mini → 4.1-mini
+    // 가성비 nano 우선. 가용 안 되면 자동으로 다음 모델로 폴백.
     const envModel = process.env.OPENAI_CHAT_MODEL;
     const chain = envModel
-      ? [envModel, "gpt-5.4-mini", "gpt-4.1-mini"]
-      : ["gpt-5.5", "gpt-5.4-mini", "gpt-4.1-mini"];
+      ? [envModel, "gpt-5.4-nano", "gpt-5.4-mini", "gpt-4.1-mini"]
+      : ["gpt-5.5-nano", "gpt-5.4-nano", "gpt-5.4-mini", "gpt-4.1-mini"];
 
     // 메시지 히스토리: 시스템 + 최근 N턴 + 현재 질문
     const HISTORY_LIMIT = 6;

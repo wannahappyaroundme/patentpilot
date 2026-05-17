@@ -15,7 +15,13 @@ function parseOrg(v: string | null): SearchParams["org"] {
 }
 
 function parseSort(v: string | null): SearchParams["sort"] {
-  if (v === "recent" || v === "citations" || v === "claims" || v === "urgency")
+  if (
+    v === "recent" ||
+    v === "citations" ||
+    v === "claims" ||
+    v === "transfers" ||
+    v === "urgency"
+  )
     return v;
   return "urgency";
 }

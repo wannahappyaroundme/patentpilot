@@ -1,5 +1,6 @@
 import { CompareView } from "@/components/compare-view";
 import { PrintButton } from "@/components/print-button";
+import { PrintHeader } from "@/components/print-header";
 
 export const metadata = {
   title: "매물 비교 — PatentPilot",
@@ -8,6 +9,10 @@ export const metadata = {
 export default function ComparePage() {
   return (
     <div className="py-8">
+      <PrintHeader
+        title="PatentPilot — 매물 비교표"
+        subtitle="담은 매물 비교 · 청구항·피인용·패밀리 최대값 강조"
+      />
       <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold sm:text-3xl">매물 비교</h1>

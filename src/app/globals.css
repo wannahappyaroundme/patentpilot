@@ -51,23 +51,69 @@
   }
 }
 
+/* Screen utilities */
+.print-only {
+  display: none !important;
+}
+
 @media print {
+  /* show print-only blocks, override hidden util */
+  .print-only {
+    display: flex !important;
+  }
   @page {
     size: A4 landscape;
-    margin: 12mm;
+    margin: 10mm 8mm;
   }
+  html,
   body {
     background: white !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
-  /* Hide chrome */
+  body {
+    font-size: 11px !important;
+    line-height: 1.4 !important;
+  }
+  /* Hide site chrome + interactive elements */
   header,
   footer,
-  .no-print {
+  .no-print,
+  nav,
+  button:not(.print-keep) {
     display: none !important;
   }
-  /* Avoid clipping */
+  /* Container full width on print */
+  .container {
+    max-width: none !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  /* Headings tighter */
+  h1 {
+    font-size: 18px !important;
+    margin-bottom: 4px !important;
+  }
+  h2 {
+    font-size: 14px !important;
+    margin-bottom: 2px !important;
+  }
+  h3 {
+    font-size: 12px !important;
+  }
+  main {
+    padding: 0 !important;
+  }
+  /* Force market layout to single column (no sidebar) */
+  .lg\:grid-cols-\[260px_1fr\] {
+    grid-template-columns: 1fr !important;
+  }
+  /* Tables */
   table {
+    width: 100% !important;
     page-break-inside: auto;
+    border-collapse: collapse;
   }
   tr {
     page-break-inside: avoid;
@@ -76,9 +122,37 @@
   thead {
     display: table-header-group;
   }
+  th,
+  td {
+    padding: 4px 6px !important;
+    font-size: 10px !important;
+    white-space: normal !important;
+    word-break: keep-all !important;
+  }
+  /* Cards: keep together, allow break between cards */
+  article,
+  li {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+  /* Market: force 2-col grid for cards (compact on A4 landscape) */
+  ul.sm\:grid-cols-2 {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 6mm !important;
+  }
+  /* Links */
   a {
     color: inherit !important;
     text-decoration: none !important;
+  }
+  /* Hide pure-decoration animations */
+  [class*="animate-"] {
+    animation: none !important;
+  }
+  /* Avoid sticky positioning in print */
+  .sticky {
+    position: static !important;
   }
   /* Force colors to print */
   * {
