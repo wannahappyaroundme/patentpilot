@@ -1,6 +1,7 @@
 import { FiltersSidebar } from "@/components/filters-sidebar";
 import { PatentCard } from "@/components/patent-card";
 import { Pagination } from "@/components/pagination";
+import { PrintButton } from "@/components/print-button";
 import { searchPatents } from "@/lib/patents";
 import { formatNumber } from "@/lib/format";
 import type { Urgency, OrgType } from "@/lib/types";
@@ -64,15 +65,20 @@ export default async function MarketPage({
             건
           </p>
         </div>
-        {sp("q") && (
-          <div className="rounded-full bg-brand-50 px-3 py-1 text-sm text-brand">
-            검색어: <b>{sp("q")}</b>
-          </div>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          {sp("q") && (
+            <div className="rounded-full bg-brand-50 px-3 py-1 text-sm text-brand">
+              검색어: <b>{sp("q")}</b>
+            </div>
+          )}
+          <PrintButton label="PDF로 저장" target="market_print" />
+        </div>
       </header>
 
       <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
-        <FiltersSidebar />
+        <div className="no-print">
+          <FiltersSidebar />
+        </div>
 
         <section className="space-y-4">
           {result.rows.length === 0 ? (
@@ -92,12 +98,14 @@ export default async function MarketPage({
             </ul>
           )}
 
-          <Pagination
-            page={result.page}
-            perPage={result.perPage}
-            total={result.total}
-            buildHref={buildHref}
-          />
+          <div className="no-print">
+            <Pagination
+              page={result.page}
+              perPage={result.perPage}
+              total={result.total}
+              buildHref={buildHref}
+            />
+          </div>
         </section>
       </div>
     </div>

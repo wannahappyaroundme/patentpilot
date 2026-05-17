@@ -7,6 +7,12 @@ interface LlmIntent {
   appNo?: string;
   labelHints: string[];
   raw: string;
+  model?: string;
+}
+
+export interface ChatHistoryTurn {
+  role: "user" | "assistant";
+  content: string;
 }
 
 const SYSTEM_PROMPT = `당신은 한국 R&D 특허 매물 매칭 서비스 "PatentPilot"의 검색 비서입니다.
@@ -26,34 +32,52 @@ const SYSTEM_PROMPT = `당신은 한국 R&D 특허 매물 매칭 서비스 "Pate
 - "appNo": kind=patent일 때만 "10-YYYY-NNNNNNN" 형식
 - "labelHints": 사용자에게 보여줄 한국어 라벨 배열 (예: ["🔴 긴급 매물", "정출연", "배터리·2차전지"])
 
+대화 메모리:
+- 직전 대화가 주어지면 컨텍스트를 이해해 후속 질문(referential question)을 해석합니다.
+- 예: 이전에 "ETRI 배터리"를 검색했고 사용자가 "더 보여줘" → org=GRI + ipc 배터리 유지 + 다음 페이지 의도
+- 예: "그럼 디스플레이는?" → 이전 org/sort는 유지하고 ipc만 디스플레이로 교체
+- 후속 질문에서 명시되지 않은 필터는 직전 대화의 값을 유지하세요.
+
 JSON만 출력. 설명 금지.`;
 
-async function callOpenAi(q: string): Promise<LlmIntent | null> {
+async function callOpenAi(
+  q: string,
+  history: ChatHistoryTurn[],
+): Promise<LlmIntent | null> {
   const key = process.env.OPENAI_API_KEY;
   if (!key) return null;
   try {
     const { default: OpenAI } = await import("openai");
     const client = new OpenAI({ apiKey: key });
+
     // 모델 체인: OPENAI_CHAT_MODEL 우선 → gpt-5.5 → gpt-5.4-mini → gpt-4.1-mini
     const envModel = process.env.OPENAI_CHAT_MODEL;
     const chain = envModel
       ? [envModel, "gpt-5.4-mini", "gpt-4.1-mini"]
       : ["gpt-5.5", "gpt-5.4-mini", "gpt-4.1-mini"];
 
+    // 메시지 히스토리: 시스템 + 최근 N턴 + 현재 질문
+    const HISTORY_LIMIT = 6;
+    const trimmed = history.slice(-HISTORY_LIMIT);
+    const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
+      { role: "system", content: SYSTEM_PROMPT },
+      ...trimmed.map((t) => ({ role: t.role, content: t.content })),
+      { role: "user", content: q },
+    ];
+
     let resp: Awaited<ReturnType<typeof client.chat.completions.create>> | null = null;
     let lastErr: unknown = null;
+    let usedModel = "";
     for (const model of chain) {
       try {
         resp = await client.chat.completions.create({
           model,
           response_format: { type: "json_object" },
-          messages: [
-            { role: "system", content: SYSTEM_PROMPT },
-            { role: "user", content: q },
-          ],
+          messages,
           temperature: 0.2,
           max_tokens: 400,
         });
+        usedModel = model;
         break;
       } catch (err) {
         lastErr = err;
@@ -67,6 +91,7 @@ async function callOpenAi(q: string): Promise<LlmIntent | null> {
       console.error("All OpenAI models failed", lastErr);
       return null;
     }
+
     const text = resp.choices[0]?.message?.content ?? "";
     if (!text) return null;
     const parsed = JSON.parse(text) as Partial<LlmIntent>;
@@ -76,6 +101,7 @@ async function callOpenAi(q: string): Promise<LlmIntent | null> {
       params: { perPage: 6, ...(parsed.params ?? {}) },
       raw: q,
       labelHints: Array.isArray(parsed.labelHints) ? parsed.labelHints : [],
+      model: usedModel,
     };
     if (parsed.kind === "patent" && typeof parsed.appNo === "string") {
       intent.appNo = parsed.appNo;
@@ -100,6 +126,9 @@ async function callOpenAi(q: string): Promise<LlmIntent | null> {
   }
 }
 
-export async function llmIntent(q: string): Promise<LlmIntent | null> {
-  return callOpenAi(q);
+export async function llmIntent(
+  q: string,
+  history: ChatHistoryTurn[] = [],
+): Promise<LlmIntent | null> {
+  return callOpenAi(q, history);
 }

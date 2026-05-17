@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { parseQuery, type ChatIntent } from "@/lib/chat-intent";
-import { llmIntent } from "@/lib/llm-intent";
+import { llmIntent, type ChatHistoryTurn } from "@/lib/llm-intent";
 import { searchPatents, getPatentByAppNo } from "@/lib/patents";
 import type { PatentRow } from "@/lib/types";
 import { matchCompanies, type CompanyMatch } from "@/lib/matching";
@@ -13,6 +13,8 @@ export interface ChatResponse {
   matches?: CompanyMatch[];
   total?: number;
   suggestions: string[];
+  source: "llm" | "rule";
+  model?: string;
 }
 
 const SMALLTALK_PROMPT =
@@ -34,7 +36,7 @@ function urgencyLabel(u: string | undefined): string {
 }
 
 export async function POST(req: NextRequest) {
-  let body: { q?: string } = {};
+  let body: { q?: string; history?: ChatHistoryTurn[] } = {};
   try {
     body = await req.json();
   } catch {
@@ -44,9 +46,25 @@ export async function POST(req: NextRequest) {
   const q = (body.q ?? "").trim();
   if (!q) return NextResponse.json({ error: "q is required" }, { status: 400 });
 
-  // OPENAI_API_KEY가 있으면 LLM으로 의도 추출, 실패 시 룰베이스로 폴백
-  const llm = await llmIntent(q);
+  // 클라이언트가 보낸 history (직전 대화). user/assistant 형태로 검증
+  const rawHistory = Array.isArray(body.history) ? body.history : [];
+  const history: ChatHistoryTurn[] = rawHistory
+    .filter(
+      (t): t is ChatHistoryTurn =>
+        t !== null &&
+        typeof t === "object" &&
+        (t as ChatHistoryTurn).role !== undefined &&
+        ((t as ChatHistoryTurn).role === "user" ||
+          (t as ChatHistoryTurn).role === "assistant") &&
+        typeof (t as ChatHistoryTurn).content === "string",
+    )
+    .slice(-10);
+
+  // OPENAI_API_KEY가 있으면 LLM으로 의도 추출 (history 포함), 실패 시 룰베이스
+  const llm = await llmIntent(q, history);
   const intent: ChatIntent = llm ?? parseQuery(q);
+  const source: "llm" | "rule" = llm ? "llm" : "rule";
+  const model = llm?.model;
 
   if (intent.kind === "patent" && intent.appNo) {
     const patent = await getPatentByAppNo(intent.appNo);
@@ -57,6 +75,8 @@ export async function POST(req: NextRequest) {
         intent,
         patents: [],
         suggestions: SUGGESTIONS,
+        source,
+        model,
       };
       return NextResponse.json(res);
     }
@@ -80,6 +100,8 @@ export async function POST(req: NextRequest) {
         `${patent.university_name || patent.applicant} 의 다른 매물`,
         "비슷한 IPC 매물 더 보여줘",
       ],
+      source,
+      model,
     };
     return NextResponse.json(res);
   }
@@ -91,6 +113,8 @@ export async function POST(req: NextRequest) {
       intent,
       patents: [],
       suggestions: SUGGESTIONS,
+      source,
+      model,
     };
     return NextResponse.json(res);
   }
@@ -111,6 +135,8 @@ export async function POST(req: NextRequest) {
     patents: result.rows,
     total: result.total,
     suggestions: SUGGESTIONS.filter((s) => !s.includes(intent.labelHints[0] ?? "")).slice(0, 4),
+    source,
+    model,
   };
   return NextResponse.json(res);
 }

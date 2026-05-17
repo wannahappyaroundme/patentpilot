@@ -18,6 +18,8 @@ interface Message {
   matches?: CompanyMatch[];
   suggestions?: string[];
   total?: number;
+  source?: "llm" | "rule";
+  model?: string;
 }
 
 const WELCOME: Message = {
@@ -55,11 +57,19 @@ export function ChatCopilot() {
       text: q,
     };
     setMessages((m) => [...m, userMsg]);
+
+    // 직전 대화 N턴을 함께 보내서 LLM이 컨텍스트를 이해하도록
+    const history = messages
+      .filter((m) => m.role === "user" || m.role === "assistant")
+      .filter((m) => m.id !== "welcome")
+      .slice(-8)
+      .map((m) => ({ role: m.role, content: m.text }));
+
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ q }),
+        body: JSON.stringify({ q, history }),
       });
       const json = await res.json();
       const assistantMsg: Message = {
@@ -70,6 +80,8 @@ export function ChatCopilot() {
         matches: json.matches ?? [],
         suggestions: json.suggestions ?? [],
         total: json.total,
+        source: json.source,
+        model: json.model,
       };
       setMessages((m) => [...m, assistantMsg]);
     } catch {
@@ -166,6 +178,20 @@ function Bubble({
         >
           <RichText text={message.text} />
         </div>
+
+        {!isUser && message.source && (
+          <div className="text-[10px] text-ink-300">
+            {message.source === "llm" ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2 py-0.5 font-medium text-brand">
+                ✨ AI · {message.model ?? "GPT"}
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 rounded-full bg-ink-50 px-2 py-0.5 font-medium text-ink-500">
+                rule-based fallback
+              </span>
+            )}
+          </div>
+        )}
 
         {message.patents && message.patents.length > 0 && (
           <div className="space-y-2">
