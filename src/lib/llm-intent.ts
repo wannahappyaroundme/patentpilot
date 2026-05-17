@@ -67,18 +67,41 @@ async function callOpenAi(
       { role: "user", content: q },
     ];
 
-    let resp: Awaited<ReturnType<typeof client.chat.completions.create>> | null = null;
+    type ChatCompletion = Awaited<
+      ReturnType<typeof client.chat.completions.create>
+    > extends infer T
+      ? T extends { choices: unknown }
+        ? T
+        : never
+      : never;
+    let resp: ChatCompletion | null = null;
     let lastErr: unknown = null;
     let usedModel = "";
     for (const model of chain) {
       try {
-        resp = await client.chat.completions.create({
+        const isGpt5 = model.startsWith("gpt-5");
+        // GPT-5 시리즈는 max_completion_tokens + reasoning 모델 특성상 temperature 강제 변경 불가
+        const baseParams = {
           model,
-          response_format: { type: "json_object" },
+          response_format: { type: "json_object" as const },
           messages,
-          temperature: 0.2,
-          max_tokens: 400,
-        });
+        };
+        const params = isGpt5
+          ? {
+              ...baseParams,
+              max_completion_tokens: 600,
+              reasoning_effort: "low" as const,
+            }
+          : {
+              ...baseParams,
+              max_tokens: 400,
+              temperature: 0.2,
+            };
+        // OpenAI SDK 타입이 모델별 파라미터를 union으로 안 받아서 cast
+        const raw = await client.chat.completions.create(
+          params as Parameters<typeof client.chat.completions.create>[0],
+        );
+        resp = raw as ChatCompletion;
         usedModel = model;
         break;
       } catch (err) {
