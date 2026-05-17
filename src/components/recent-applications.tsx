@@ -58,7 +58,7 @@ export async function RecentApplications() {
         </div>
         <Link
           href="/apply"
-          className="rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand hover:bg-brand-100"
+          className="whitespace-nowrap rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand hover:bg-brand-100"
         >
           + 신청 작성
         </Link>
