@@ -58,8 +58,22 @@ export function Footer() {
             </div>
           </div>
         </div>
-        <div className="mt-10 flex flex-wrap items-center justify-between gap-2 border-t border-ink-100 pt-5 text-xs text-ink-400">
-          <span>© 2026 TreeO · PatentPilot</span>
+        <div className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-ink-100 pt-5 text-xs text-ink-400">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <span>© 2026 TreeO · PatentPilot</span>
+            <span className="text-ink-300">·</span>
+            <Link href="/privacy" className="hover:text-brand">
+              개인정보처리방침
+            </Link>
+            <span className="text-ink-300">·</span>
+            <Link href="/terms" className="hover:text-brand">
+              이용약관
+            </Link>
+            <span className="text-ink-300">·</span>
+            <Link href="/en" className="hover:text-brand">
+              English
+            </Link>
+          </div>
           <span>2026 지식재산 데이터 활용 창업 경진대회 · 데이터 출처: KIPRIS Plus</span>
         </div>
       </div>

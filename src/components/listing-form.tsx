@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 import { track } from "@/lib/analytics";
 import {
@@ -42,6 +43,8 @@ export function ListingForm() {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [consent, setConsent] = useState(false);
+  const [consentError, setConsentError] = useState(false);
 
   function setField(name: keyof FormValues, raw: string) {
     const v = name === "proposed_price" ? formatAmountInput(raw) : raw;
@@ -72,6 +75,11 @@ export function ListingForm() {
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!validateAll()) return;
+    if (!consent) {
+      setConsentError(true);
+      return;
+    }
+    setConsentError(false);
     setSubmitting(true);
     setServerError(null);
     setSuccess(null);
@@ -214,6 +222,37 @@ export function ListingForm() {
         <div className="mt-1 text-right text-xs text-ink-300">
           {values.message.length} / 2000
         </div>
+      </div>
+
+      <div
+        className={`flex items-start gap-2 rounded-md border p-3 text-xs ${
+          consentError
+            ? "border-red-300 bg-red-50 text-red-700"
+            : "border-ink-100 bg-ink-50 text-ink-600"
+        }`}
+      >
+        <input
+          id="listing-consent"
+          type="checkbox"
+          checked={consent}
+          onChange={(e) => {
+            setConsent(e.target.checked);
+            if (e.target.checked) setConsentError(false);
+          }}
+          className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-brand"
+        />
+        <label htmlFor="listing-consent" className="cursor-pointer leading-relaxed">
+          (필수){" "}
+          <Link href="/privacy" target="_blank" className="text-brand hover:underline">
+            개인정보처리방침
+          </Link>{" "}
+          및{" "}
+          <Link href="/terms" target="_blank" className="text-brand hover:underline">
+            이용약관
+          </Link>
+          에 동의하며, 매물 정보 및 담당자 연락처를 운영자가 매수 후보 기업에
+          공유함에 동의합니다.
+        </label>
       </div>
 
       {serverError && (
