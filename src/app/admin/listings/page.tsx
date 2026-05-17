@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createServiceClient } from "@/lib/supabase";
+import { AdminDeleteButton } from "@/components/admin-delete-button";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -89,6 +90,7 @@ export default async function AdminListingsPage() {
                 <th className="px-4 py-3">의향가</th>
                 <th className="px-4 py-3">출원번호</th>
                 <th className="px-4 py-3">상태</th>
+                <th className="px-4 py-3 text-right">관리</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-ink-50">

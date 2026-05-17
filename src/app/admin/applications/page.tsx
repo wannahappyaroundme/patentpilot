@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createServiceClient } from "@/lib/supabase";
+import { AdminDeleteButton } from "@/components/admin-delete-button";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -84,6 +85,7 @@ export default async function AdminApplicationsPage() {
                 <th className="px-4 py-3">대상 매물</th>
                 <th className="px-4 py-3">제안 금액</th>
                 <th className="px-4 py-3">메시지</th>
+                <th className="px-4 py-3 text-right">관리</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-ink-50">
@@ -137,6 +139,12 @@ export default async function AdminApplicationsPage() {
                         <span className="text-ink-300">(메시지 없음)</span>
                       )}
                     </div>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <AdminDeleteButton
+                      endpoint={`/api/admin/applications/${r.id}`}
+                      confirmText={`거래 신청 #${r.id} (${r.company_name})을(를) 삭제하시겠어요?`}
+                    />
                   </td>
                 </tr>
               ))}
