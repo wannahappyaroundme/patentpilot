@@ -53,7 +53,7 @@ export async function RecentApplications() {
         <div>
           <h2 className="text-lg font-bold">실시간 거래 신청</h2>
           <p className="mt-1 text-xs text-ink-500">
-            최근 5건 (개인정보 보호를 위해 기업명은 익명화 처리)
+            최근 5건 (기업명은 익명화 처리)
           </p>
         </div>
         <Link
