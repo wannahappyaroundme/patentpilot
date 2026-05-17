@@ -34,16 +34,38 @@ async function callOpenAi(q: string): Promise<LlmIntent | null> {
   try {
     const { default: OpenAI } = await import("openai");
     const client = new OpenAI({ apiKey: key });
-    const resp = await client.chat.completions.create({
-      model: process.env.OPENAI_CHAT_MODEL ?? "gpt-4.1-nano",
-      response_format: { type: "json_object" },
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: q },
-      ],
-      temperature: 0.2,
-      max_tokens: 400,
-    });
+    const primaryModel = process.env.OPENAI_CHAT_MODEL ?? "gpt-5-mini";
+    const fallbackModel = "gpt-4.1-mini";
+
+    let resp;
+    try {
+      resp = await client.chat.completions.create({
+        model: primaryModel,
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: q },
+        ],
+        temperature: 0.2,
+        max_tokens: 400,
+      });
+    } catch (err) {
+      // 최신 모델 미사용 가능 시 4.1-mini로 폴백
+      console.warn(
+        `OpenAI primary model ${primaryModel} failed, falling back to ${fallbackModel}`,
+        err instanceof Error ? err.message : err,
+      );
+      resp = await client.chat.completions.create({
+        model: fallbackModel,
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: q },
+        ],
+        temperature: 0.2,
+        max_tokens: 400,
+      });
+    }
     const text = resp.choices[0]?.message?.content ?? "";
     if (!text) return null;
     const parsed = JSON.parse(text) as Partial<LlmIntent>;

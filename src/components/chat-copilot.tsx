@@ -6,6 +6,7 @@ import type { PatentRow } from "@/lib/types";
 import type { CompanyMatch } from "@/lib/matching";
 import { track } from "@/lib/analytics";
 import { urgencyLabel } from "@/lib/format";
+import { ChatThinking } from "./chat-thinking";
 
 type Role = "user" | "assistant";
 
@@ -108,15 +109,7 @@ export function ChatCopilot() {
         {messages.map((m) => (
           <Bubble key={m.id} message={m} onSuggestion={send} />
         ))}
-        {loading && (
-          <Bubble
-            message={{
-              id: "loading",
-              role: "assistant",
-              text: "찾는 중...",
-            }}
-          />
-        )}
+        {loading && <ChatThinking />}
         <div ref={endRef} />
       </div>
 
