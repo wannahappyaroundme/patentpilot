@@ -11,6 +11,6 @@ export default function robots(): MetadataRoute.Robots {
       },
     ],
     sitemap: `${base}/sitemap.xml`,
-    host: base,
+    // host: 비표준 항목 — Google/Naver 일부 파서가 거부함, Yandex 전용이라 제거
   };
 }
