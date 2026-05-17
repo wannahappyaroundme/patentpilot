@@ -30,6 +30,23 @@ export function toggleFavorite(appNo: string): boolean {
   return !exists;
 }
 
+export function reorderFavorites(fromIdx: number, toIdx: number): void {
+  const cur = readFavorites();
+  if (
+    fromIdx < 0 ||
+    fromIdx >= cur.length ||
+    toIdx < 0 ||
+    toIdx >= cur.length ||
+    fromIdx === toIdx
+  )
+    return;
+  const next = [...cur];
+  const [moved] = next.splice(fromIdx, 1);
+  if (moved === undefined) return;
+  next.splice(toIdx, 0, moved);
+  writeFavorites(next);
+}
+
 export function isFavorite(appNo: string): boolean {
   return readFavorites().includes(appNo);
 }

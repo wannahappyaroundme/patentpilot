@@ -1,12 +1,15 @@
 "use client";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
-import { Send, Sparkles, Bot, User } from "lucide-react";
+import { Send, Sparkles, Bot, User, Trash2 } from "lucide-react";
 import type { PatentRow } from "@/lib/types";
 import type { CompanyMatch } from "@/lib/matching";
 import { track } from "@/lib/analytics";
 import { urgencyLabel } from "@/lib/format";
 import { ChatThinking } from "./chat-thinking";
+
+const STORAGE_KEY = "pp_chat_messages";
+const MAX_SAVED = 40;
 
 type Role = "user" | "assistant";
 
@@ -39,11 +42,49 @@ export function ChatCopilot() {
   const [messages, setMessages] = useState<Message[]>([WELCOME]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
+
+  // 1) localStorage에서 이전 대화 복원 (mount 1회만)
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setMessages(parsed as Message[]);
+        }
+      }
+    } catch {
+      // 파싱 실패 시 무시
+    }
+    setHydrated(true);
+  }, []);
+
+  // 2) messages 변경 시 localStorage에 저장 (hydration 끝난 후만)
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      const toSave = messages.slice(-MAX_SAVED);
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+    } catch {
+      // 용량 초과 등 무시
+    }
+  }, [messages, hydrated]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages]);
+
+  function resetChat() {
+    setMessages([WELCOME]);
+    try {
+      window.localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // ignore
+    }
+    track("click", { target: "chat_reset" });
+  }
 
   async function send(text: string) {
     const q = text.trim();
@@ -109,12 +150,23 @@ export function ChatCopilot() {
         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-50 text-brand">
           <Sparkles size={18} />
         </div>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="text-sm font-bold">AI 코파일럿 (베타)</div>
           <div className="text-xs text-ink-500">
-            자연어 질문으로 매물을 찾아드립니다.
+            자연어 질문으로 매물을 찾아드립니다. 대화는 브라우저에 자동 저장돼요.
           </div>
         </div>
+        {messages.length > 1 && (
+          <button
+            type="button"
+            onClick={resetChat}
+            className="inline-flex shrink-0 items-center gap-1 rounded-md border border-ink-100 px-2.5 py-1 text-xs font-medium text-ink-500 hover:bg-ink-50 hover:text-red-500"
+            title="대화 기록 초기화"
+          >
+            <Trash2 size={12} />
+            <span className="hidden sm:inline">대화 초기화</span>
+          </button>
+        )}
       </header>
 
       <div className="flex-1 space-y-5 overflow-y-auto bg-ink-50/40 px-4 py-6">
