@@ -96,6 +96,11 @@ export function PatentCard({ p }: { p: PatentRow }) {
           출원 {p.application_date ?? "—"} · 등록 {p.registration_date ?? "—"}
         </span>
         <div className="flex flex-wrap gap-1">
+          {p.remaining_years != null && p.remaining_years > 0 && (
+            <span className="rounded-full bg-ink-50 px-2 py-0.5 text-[10px] font-medium text-ink-700">
+              잔여 {p.remaining_years}년
+            </span>
+          )}
           {p.transfer_events >= 5 && (
             <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
               🤝 권리이동 {p.transfer_events}회

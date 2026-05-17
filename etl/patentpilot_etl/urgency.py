@@ -33,11 +33,20 @@ def urgency_tag(application_date: Optional[str]) -> Optional[str]:
     return None
 
 
-def remaining_years(expiration_date: Optional[str]) -> Optional[int]:
-    """만료일로부터 2026-05-16 기준 잔여년(정수). 이미 만료면 0, 누락이면 None."""
-    year = _parse_year(expiration_date)
-    if year is None:
-        return None
-    today = date(CURRENT_YEAR, 5, 16)
-    diff = year - today.year
-    return max(0, diff)
+def remaining_years(
+    expiration_date: Optional[str], application_date: Optional[str] = None
+) -> Optional[int]:
+    """잔여 권리 연수.
+
+    1순위: 만료일 - 2026 (정확)
+    2순위: 출원일 + 20 - 2026 (만료일 누락 시 추정. 한국 특허 존속기간 20년)
+    둘 다 없으면 None.
+    """
+    exp_year = _parse_year(expiration_date)
+    if exp_year is not None:
+        diff = exp_year - CURRENT_YEAR
+        return max(0, diff)
+    app_year = _parse_year(application_date)
+    if app_year is not None:
+        return max(0, app_year + 20 - CURRENT_YEAR)
+    return None

@@ -60,7 +60,10 @@ def extract_pool(source: Union[str, IO[str]]) -> pd.DataFrame:
     )
     df["urgency"] = df["patApplicationDate"].map(urgency_tag)
     df = df[df["urgency"].isin(["RED", "YELLOW", "GREEN"])].copy()
-    df["remaining_years"] = df["patExpirationDate"].map(remaining_years)
+    df["remaining_years"] = df.apply(
+        lambda r: remaining_years(r.get("patExpirationDate"), r.get("patApplicationDate")),
+        axis=1,
+    )
 
     out = pd.DataFrame(
         {
