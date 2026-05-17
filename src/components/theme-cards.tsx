@@ -38,12 +38,12 @@ export function ThemeCards() {
         </Link>
       </div>
 
-      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+      <ul className="grid auto-rows-fr grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {THEMES.map((t) => (
-          <li key={t.slug}>
+          <li key={t.slug} className="h-full">
             <Link
               href={`/market?ipc=${encodeURIComponent(t.slug)}`}
-              className="group flex items-center gap-3 rounded-2xl border border-ink-100 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-card"
+              className="group flex h-full items-center gap-3 rounded-2xl border border-ink-100 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-card"
             >
               <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${t.bg}`}>
                 <t.Icon size={22} className={t.iconColor} strokeWidth={2} />

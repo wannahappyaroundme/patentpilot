@@ -44,12 +44,12 @@ function RelatedList({
           <p className="mt-1 text-xs text-ink-500">{subtitle}</p>
         </div>
       </header>
-      <ul className="grid gap-3 sm:grid-cols-2">
+      <ul className="grid auto-rows-fr gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {rows.map((p) => (
-          <li key={p.application_number}>
+          <li key={p.application_number} className="h-full">
             <Link
               href={`/patent/${encodeURIComponent(p.application_number)}`}
-              className="block rounded-xl border border-ink-100 bg-white p-4 transition hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-card"
+              className="flex h-full flex-col rounded-xl border border-ink-100 bg-white p-4 transition hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-card"
             >
               <div className="flex items-center gap-1.5 text-[10px]">
                 <span

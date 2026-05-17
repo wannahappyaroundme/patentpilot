@@ -101,9 +101,9 @@ export default async function MarketPage({
               </p>
             </div>
           ) : (
-            <ul className="grid gap-4 sm:grid-cols-2">
+            <ul className="grid auto-rows-fr gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {result.rows.map((p) => (
-                <li key={p.application_number} className="flex">
+                <li key={p.application_number} className="h-full">
                   <PatentCard p={p} />
                 </li>
               ))}

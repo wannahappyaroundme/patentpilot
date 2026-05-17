@@ -18,7 +18,7 @@ export function PrintHeader({ title, subtitle }: Props) {
     minute: "2-digit",
   });
   return (
-    <div className="print-only mb-4 hidden items-center justify-between border-b-2 border-brand pb-3">
+    <div className="print-only mb-4 items-center justify-between border-b-2 border-brand pb-3">
       <div className="flex items-center gap-3">
         <Logo variant="full" height={22} />
         <div className="border-l border-ink-200 pl-3">

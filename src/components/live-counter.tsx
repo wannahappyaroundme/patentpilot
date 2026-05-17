@@ -12,11 +12,11 @@ export async function LiveCounter() {
     { label: "정출연 매물", value: s.gri, color: "text-violet-600" },
   ];
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+    <div className="grid auto-rows-fr grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
       {items.map((it) => (
         <div
           key={it.label}
-          className="rounded-xl border border-ink-100 bg-white p-4"
+          className="flex h-full flex-col justify-between rounded-xl border border-ink-100 bg-white p-4"
         >
           <div className="text-xs text-ink-500">{it.label}</div>
           <div className={`mt-1 text-2xl font-bold tabular-nums ${it.color}`}>

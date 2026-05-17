@@ -51,13 +51,15 @@
   }
 }
 
-/* Screen utilities */
-.print-only {
-  display: none !important;
+/* Screen-only: hide print-only blocks on screen */
+@media screen {
+  .print-only {
+    display: none !important;
+  }
 }
 
 @media print {
-  /* show print-only blocks, override hidden util */
+  /* show print-only blocks in print */
   .print-only {
     display: flex !important;
   }

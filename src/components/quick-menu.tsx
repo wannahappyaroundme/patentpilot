@@ -46,13 +46,13 @@ const ITEMS = [
 
 export function QuickMenu() {
   return (
-    <ul className="grid grid-cols-2 gap-3 sm:grid-cols-5 sm:gap-4">
+    <ul className="grid auto-rows-fr grid-cols-2 gap-3 sm:grid-cols-5 sm:gap-4">
       {ITEMS.map(({ href, label, desc, Icon, iconClass, bgClass }) => (
-        <li key={href}>
+        <li key={href} className="h-full">
           <TrackedLink
             href={href}
             meta={{ target: "quick_menu", label }}
-            className="group flex flex-col items-center rounded-2xl border border-ink-100 bg-white p-5 text-center transition hover:-translate-y-0.5 hover:shadow-card"
+            className="group flex h-full flex-col items-center justify-start rounded-2xl border border-ink-100 bg-white p-5 text-center transition hover:-translate-y-0.5 hover:shadow-card"
           >
             <span className={`flex h-14 w-14 items-center justify-center rounded-2xl ${bgClass}`}>
               <Icon size={28} className={iconClass} strokeWidth={2} />
