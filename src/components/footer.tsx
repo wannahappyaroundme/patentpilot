@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "./logo";
+import { formatSyncBadge } from "@/lib/data-version";
 
 export function Footer() {
   return (
@@ -74,7 +75,13 @@ export function Footer() {
               English
             </Link>
           </div>
-          <span>2026 지식재산 데이터 활용 창업 경진대회 · 데이터 출처: KIPRIS Plus</span>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              {formatSyncBadge()}
+            </span>
+            <span>2026 지식재산 데이터 활용 창업 경진대회 · 데이터 출처: KIPRIS Plus</span>
+          </div>
         </div>
       </div>
     </footer>

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -6,6 +6,17 @@ import "./globals.css";
 import { PageViewTracker } from "@/components/page-view-tracker";
 import { SiteChrome } from "@/components/site-chrome";
 import { ConsoleShield } from "@/components/console-shield";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#FFFFFF" },
+    { media: "(prefers-color-scheme: dark)", color: "#0B1220" },
+  ],
+  colorScheme: "light",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://patentpilot-livid.vercel.app"),
@@ -117,6 +128,12 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <head>
+        {/* Pretendard CDN: preconnect + preload first font css → LCP/FCP 개선 */}
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="" />
+        <link
+          rel="dns-prefetch"
+          href="https://cdn.jsdelivr.net"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { searchPatents, type SearchParams } from "@/lib/patents";
 import type { Urgency, OrgType } from "@/lib/types";
+import { rateLimit, rateLimitHeaders } from "@/lib/rate-limit";
 
 export const revalidate = 60;
 
@@ -27,6 +28,15 @@ function parseSort(v: string | null): SearchParams["sort"] {
 }
 
 export async function GET(req: NextRequest) {
+  // Rate limit: IP당 1분에 60회 (사용자 검색은 충분, 스크래퍼는 차단)
+  const rl = rateLimit(req, "search", 60, 60);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: "too many requests" },
+      { status: 429, headers: rateLimitHeaders(rl) },
+    );
+  }
+
   const sp = req.nextUrl.searchParams;
   const result = await searchPatents({
     q: sp.get("q") ?? undefined,
@@ -43,6 +53,7 @@ export async function GET(req: NextRequest) {
       // 스크래핑 방지: 캐시 무효화 + 검색엔진 색인 차단
       "Cache-Control": "private, no-store, max-age=0",
       "X-Robots-Tag": "noindex, nofollow",
+      ...rateLimitHeaders(rl),
     },
   });
 }

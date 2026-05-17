@@ -4,6 +4,7 @@ import { llmIntent, type ChatHistoryTurn } from "@/lib/llm-intent";
 import { searchPatents, getPatentByAppNo } from "@/lib/patents";
 import type { PatentRow } from "@/lib/types";
 import { matchCompanies, type CompanyMatch } from "@/lib/matching";
+import { rateLimit, rateLimitHeaders } from "@/lib/rate-limit";
 
 export interface ChatResponse {
   kind: "search" | "patent" | "smalltalk";
@@ -36,6 +37,25 @@ function urgencyLabel(u: string | undefined): string {
 }
 
 export async function POST(req: NextRequest) {
+  // 2단 캡: (1) 분당 10회 — 봇 차단 (2) 일일 30회 — OpenAI 비용 보호
+  const rlBurst = rateLimit(req, "chat:min", 10, 60);
+  if (!rlBurst.ok) {
+    return NextResponse.json(
+      { error: `너무 빠른 요청입니다. ${rlBurst.resetSec}초 후 다시 시도해주세요.` },
+      { status: 429, headers: rateLimitHeaders(rlBurst) },
+    );
+  }
+  const rlDay = rateLimit(req, "chat:day", 30, 24 * 3600);
+  if (!rlDay.ok) {
+    const hours = Math.ceil(rlDay.resetSec / 3600);
+    return NextResponse.json(
+      {
+        error: `일일 AI 채팅 사용량(30회)을 초과했습니다. ${hours}시간 후 초기화됩니다. 매물 검색 기능은 그대로 사용 가능합니다.`,
+      },
+      { status: 429, headers: rateLimitHeaders(rlDay) },
+    );
+  }
+
   let body: { q?: string; history?: ChatHistoryTurn[] } = {};
   try {
     body = await req.json();

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { KIPRIS_SYNC_DATE } from "@/lib/data-version";
 
 export const metadata = {
   title: "서비스 소개 — PatentPilot",
@@ -28,7 +29,13 @@ export default function AboutPage() {
       </section>
 
       <section className="rounded-2xl border border-ink-100 bg-ink-50/50 p-8">
-        <h2 className="text-xl font-bold">데이터</h2>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-xl font-bold">데이터</h2>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            KIPRIS 동기화: {KIPRIS_SYNC_DATE}
+          </span>
+        </div>
         <ul className="mt-4 grid gap-3 text-sm text-ink-700 sm:grid-cols-2">
           <li>· KIPRIS Plus API로 확보한 대학·정출연 특허 <b>370,666건</b></li>
           <li>· 출원 2006~2022년 매물 풀 <b>158,777건</b></li>

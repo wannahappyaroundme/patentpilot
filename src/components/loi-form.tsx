@@ -23,6 +23,7 @@ interface FormValues {
   contact_phone: string;
   proposed_amount: string;
   message: string;
+  website_alt: string;
 }
 
 const INITIAL: FormValues = {
@@ -33,6 +34,7 @@ const INITIAL: FormValues = {
   contact_phone: "",
   proposed_amount: "",
   message: "",
+  website_alt: "",
 };
 
 export function LoiForm({ defaultAppNo }: Props) {
@@ -125,6 +127,20 @@ export function LoiForm({ defaultAppNo }: Props) {
 
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-5 rounded-2xl border border-ink-100 bg-white p-6 sm:p-8">
+      {/* Honeypot: 사람 눈에 안 보이지만 봇은 채움 → 서버가 무시 */}
+      <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+        <label htmlFor="loi-website-alt">웹사이트 (입력하지 마세요)</label>
+        <input
+          id="loi-website-alt"
+          type="text"
+          name="website_alt"
+          tabIndex={-1}
+          autoComplete="off"
+          value={values.website_alt}
+          onChange={(e) => setField("website_alt", e.target.value)}
+        />
+      </div>
+
       <Field
         label="특허 출원번호"
         name="patent_application_number"

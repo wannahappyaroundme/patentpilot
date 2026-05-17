@@ -20,9 +20,20 @@ export async function generateMetadata({
 }) {
   const p = await getPatentByAppNo(decodeURIComponent(params.appNo));
   if (!p) return { title: "매물 — PatentPilot" };
+  const desc = `${p.university_name || p.applicant} · ${p.ipc_primary || ""} · 청구항 ${p.claims_count ?? 0}개 · 피인용 ${p.citation_count ?? 0}`;
   return {
     title: `${p.title} — PatentPilot`,
-    description: `${p.university_name || p.applicant} · ${p.application_number}`,
+    description: desc,
+    openGraph: {
+      title: p.title,
+      description: desc,
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: p.title,
+      description: desc,
+    },
   };
 }
 

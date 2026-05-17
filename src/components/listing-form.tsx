@@ -22,6 +22,7 @@ interface FormValues {
   contact_email: string;
   contact_phone: string;
   message: string;
+  website_alt: string;
 }
 
 const INITIAL: FormValues = {
@@ -35,6 +36,7 @@ const INITIAL: FormValues = {
   contact_email: "",
   contact_phone: "",
   message: "",
+  website_alt: "",
 };
 
 export function ListingForm() {
@@ -122,6 +124,20 @@ export function ListingForm() {
 
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-5 rounded-2xl border border-ink-100 bg-white p-6 sm:p-8">
+      {/* Honeypot: 사람 눈에 안 보이지만 봇은 채움 → 서버가 무시 */}
+      <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+        <label htmlFor="listing-website-alt">웹사이트 (입력하지 마세요)</label>
+        <input
+          id="listing-website-alt"
+          type="text"
+          name="website_alt"
+          tabIndex={-1}
+          autoComplete="off"
+          value={values.website_alt}
+          onChange={(e) => setField("website_alt", e.target.value)}
+        />
+      </div>
+
       <section className="space-y-4">
         <h3 className="text-sm font-semibold text-ink-500">매물 정보</h3>
         <Field

@@ -45,3 +45,42 @@ jobs:
 
       - name: pytest
         run: pytest -v
+
+  e2e:
+    name: Playwright smoke tests
+    runs-on: ubuntu-latest
+    needs: web
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Build Next.js
+        run: npm run build
+        env:
+          # Anon Supabase 환경변수 없어도 fallback이 동작하지만,
+          # 빌드 시 client 파일 평가 단계에서 안전하게 더미 값 주입.
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy
+
+      - name: Run Playwright tests
+        run: npx playwright test --project=chromium
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
