@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     template: "%s | PatentPilot",
   },
   description:
-    "한국 대학·정출연이 보유한 R&D 특허 158,777건 중, 곧 유지비를 포기할 매물을 발굴해 기업과 매칭하는 AI 코파일럿. KIPRIS Plus 데이터 기반.",
+    "KIPRIS 기반 한국 대학·정출연이 보유한 R&D 특허 중 좋은 매물을 발굴해 기업과 매칭하는 특허 전문 코파일럿",
   keywords: [
     "PatentPilot",
     "패이턴트파일럿",
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "PatentPilot — 잠자는 한국 R&D 특허를 깨우는 매칭 코파일럿",
     description:
-      "대학·정출연 R&D 특허 158,777건 중 유지비 매물을 자동 발굴, 기업과 매칭. AI 코파일럿으로 자연어 검색.",
+      "KIPRIS 기반 한국 대학·정출연이 보유한 R&D 특허 중 좋은 매물을 발굴해 기업과 매칭하는 특허 전문 코파일럿",
     url: "https://patentpilot-livid.vercel.app",
     siteName: "PatentPilot",
     locale: "ko_KR",
@@ -64,7 +64,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "PatentPilot — 한국 R&D 특허 매칭 코파일럿",
-    description: "유지비 부담 대학·정출연 특허를 기업과 매칭. AI 자연어 검색.",
+    description:
+      "KIPRIS 기반 한국 대학·정출연이 보유한 R&D 특허 중 좋은 매물을 발굴해 기업과 매칭하는 특허 전문 코파일럿",
   },
   alternates: {
     canonical: "https://patentpilot-livid.vercel.app",
@@ -94,7 +95,7 @@ export default function RootLayout({
     alternateName: "패이턴트파일럿",
     url: "https://patentpilot-livid.vercel.app",
     description:
-      "한국 대학·정출연 R&D 특허 158,777건 중 유지비 매물을 발굴해 기업과 매칭하는 AI 코파일럿",
+      "KIPRIS 기반 한국 대학·정출연이 보유한 R&D 특허 중 좋은 매물을 발굴해 기업과 매칭하는 특허 전문 코파일럿",
     inLanguage: "ko-KR",
     potentialAction: {
       "@type": "SearchAction",
