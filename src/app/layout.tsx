@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { PageViewTracker } from "@/components/page-view-tracker";
 import { SiteChrome } from "@/components/site-chrome";
