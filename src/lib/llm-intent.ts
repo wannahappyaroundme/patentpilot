@@ -34,37 +34,38 @@ async function callOpenAi(q: string): Promise<LlmIntent | null> {
   try {
     const { default: OpenAI } = await import("openai");
     const client = new OpenAI({ apiKey: key });
-    const primaryModel = process.env.OPENAI_CHAT_MODEL ?? "gpt-5-mini";
-    const fallbackModel = "gpt-4.1-mini";
+    // 모델 체인: OPENAI_CHAT_MODEL 우선 → gpt-5.5 → gpt-5.4-mini → gpt-4.1-mini
+    const envModel = process.env.OPENAI_CHAT_MODEL;
+    const chain = envModel
+      ? [envModel, "gpt-5.4-mini", "gpt-4.1-mini"]
+      : ["gpt-5.5", "gpt-5.4-mini", "gpt-4.1-mini"];
 
-    let resp;
-    try {
-      resp = await client.chat.completions.create({
-        model: primaryModel,
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: q },
-        ],
-        temperature: 0.2,
-        max_tokens: 400,
-      });
-    } catch (err) {
-      // 최신 모델 미사용 가능 시 4.1-mini로 폴백
-      console.warn(
-        `OpenAI primary model ${primaryModel} failed, falling back to ${fallbackModel}`,
-        err instanceof Error ? err.message : err,
-      );
-      resp = await client.chat.completions.create({
-        model: fallbackModel,
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: q },
-        ],
-        temperature: 0.2,
-        max_tokens: 400,
-      });
+    let resp: Awaited<ReturnType<typeof client.chat.completions.create>> | null = null;
+    let lastErr: unknown = null;
+    for (const model of chain) {
+      try {
+        resp = await client.chat.completions.create({
+          model,
+          response_format: { type: "json_object" },
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            { role: "user", content: q },
+          ],
+          temperature: 0.2,
+          max_tokens: 400,
+        });
+        break;
+      } catch (err) {
+        lastErr = err;
+        console.warn(
+          `OpenAI model ${model} failed, trying next`,
+          err instanceof Error ? err.message : err,
+        );
+      }
+    }
+    if (!resp) {
+      console.error("All OpenAI models failed", lastErr);
+      return null;
     }
     const text = resp.choices[0]?.message?.content ?? "";
     if (!text) return null;
