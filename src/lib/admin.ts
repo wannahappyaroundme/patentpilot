@@ -9,6 +9,10 @@ export interface AdminSummary {
   loi_total: number;
   loi_24h: number;
   loi_7d: number;
+  list_total: number;
+  list_24h: number;
+  list_7d: number;
+  list_pending: number;
   patents_total: number;
   top_pages: Array<{ path: string; n: number }>;
   top_clicks: Array<{ target: string; n: number }>;

@@ -27,6 +27,7 @@ export function PatentMeta({ p }: { p: PatentRow }) {
     ["주 IPC", p.ipc_primary || "—"],
     ["출원인", p.applicant || "—"],
     ["권리자(기관)", p.university_name || "—"],
+    ["발명자", p.inventor || "—"],
     ["R&D 사업명", p.rnd_department || "—"],
   ];
 

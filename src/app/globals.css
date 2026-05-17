@@ -50,3 +50,39 @@
     font-feature-settings: "ss01", "ss02", "tnum";
   }
 }
+
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 12mm;
+  }
+  body {
+    background: white !important;
+  }
+  /* Hide chrome */
+  header,
+  footer,
+  .no-print {
+    display: none !important;
+  }
+  /* Avoid clipping */
+  table {
+    page-break-inside: auto;
+  }
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+  thead {
+    display: table-header-group;
+  }
+  a {
+    color: inherit !important;
+    text-decoration: none !important;
+  }
+  /* Force colors to print */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

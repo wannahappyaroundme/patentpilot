@@ -29,6 +29,7 @@ export interface PatentRow {
   transfer_events: number;
   legal_status: string;
   rnd_department: string;
+  inventor: string;
   kipris_link: string;
   urgency: Urgency;
   remaining_years: number | null;

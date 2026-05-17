@@ -15,7 +15,8 @@ export function Header() {
           <nav className="hidden items-center gap-7 text-sm font-medium text-ink-700 md:flex">
             <Link href="/market" className="hover:text-brand">매물</Link>
             <Link href="/themes" className="hover:text-brand">테마</Link>
-            <Link href="/about" className="hover:text-brand">서비스 소개</Link>
+            <Link href="/chat" className="hover:text-brand">AI 코파일럿</Link>
+            <Link href="/list" className="hover:text-brand">매물 등록</Link>
             <Link href="/apply" className="hover:text-brand">거래 신청</Link>
           </nav>
         </div>

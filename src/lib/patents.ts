@@ -124,6 +124,48 @@ export async function getPatentByAppNo(
   return data as PatentRow;
 }
 
+export async function getRelatedPatents(
+  patent: PatentRow,
+  limit = 6,
+): Promise<{ sameOrg: PatentRow[]; sameIpc: PatentRow[] }> {
+  const sb = client();
+  if (!sb) return { sameOrg: [], sameIpc: [] };
+
+  // 같은 권리자(기관) 매물 — 자기 자신 제외
+  const orgPromise =
+    patent.university_name && patent.university_name !== ""
+      ? sb
+          .from("patents")
+          .select("*")
+          .eq("university_name", patent.university_name)
+          .eq("latest_status", "연차료납부")
+          .neq("application_number", patent.application_number)
+          .order("urgency", { ascending: true })
+          .order("citation_count", { ascending: false })
+          .limit(limit)
+      : Promise.resolve({ data: [] as PatentRow[], error: null });
+
+  // 같은 주 IPC prefix 매물 (앞 4자리)
+  const ipcPrefix = (patent.ipc_primary || "").slice(0, 4).trim();
+  const ipcPromise = ipcPrefix
+    ? sb
+        .from("patents")
+        .select("*")
+        .ilike("ipc_primary", `${ipcPrefix}%`)
+        .eq("latest_status", "연차료납부")
+        .neq("application_number", patent.application_number)
+        .order("urgency", { ascending: true })
+        .order("citation_count", { ascending: false })
+        .limit(limit)
+    : Promise.resolve({ data: [] as PatentRow[], error: null });
+
+  const [orgRes, ipcRes] = await Promise.all([orgPromise, ipcPromise]);
+  return {
+    sameOrg: ((orgRes.data ?? []) as PatentRow[]).slice(0, limit),
+    sameIpc: ((ipcRes.data ?? []) as PatentRow[]).slice(0, limit),
+  };
+}
+
 export async function getPatentsByAppNos(
   appNos: string[],
 ): Promise<PatentRow[]> {

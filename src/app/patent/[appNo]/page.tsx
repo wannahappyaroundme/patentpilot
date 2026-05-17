@@ -5,6 +5,7 @@ import { ExternalLink, ArrowLeft } from "lucide-react";
 import { getPatentByAppNo } from "@/lib/patents";
 import { PatentMeta } from "@/components/patent-meta";
 import { MatchCandidates } from "@/components/match-candidates";
+import { RelatedPatents } from "@/components/related-patents";
 import { TrackedLink } from "@/components/tracked-link";
 import { FavoriteButton } from "@/components/favorite-button";
 
@@ -47,6 +48,8 @@ export default async function PatentDetailPage({
           <PatentMeta p={p} />
 
           <MatchCandidates patent={p} />
+
+          <RelatedPatents patent={p} />
         </div>
 
         <aside className="space-y-4 lg:sticky lg:top-20 lg:self-start">

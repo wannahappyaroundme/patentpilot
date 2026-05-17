@@ -33,6 +33,12 @@ export default async function AdminHomePage() {
           >
             거래 신청
           </Link>
+          <Link
+            href="/admin/listings"
+            className="rounded-full px-3 py-1 text-ink-700 hover:bg-ink-50"
+          >
+            매물 등록
+          </Link>
         </nav>
       </header>
 
@@ -44,11 +50,12 @@ export default async function AdminHomePage() {
 
       {data && (
         <>
-          <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <Kpi label="페이지뷰 (24h)" value={data.pv_24h} sub={`7일 ${formatNumber(data.pv_7d)}`} tone="brand" />
             <Kpi label="클릭 (24h)" value={data.click_24h} sub={`7일 ${formatNumber(data.click_7d)}`} tone="emerald" />
             <Kpi label="검색 (7일)" value={data.search_7d} sub="히어로/필터 검색" tone="violet" />
-            <Kpi label="거래 신청 (전체)" value={data.loi_total} sub={`24h ${data.loi_24h} · 7일 ${data.loi_7d}`} tone="amber" />
+            <Kpi label="거래 신청" value={data.loi_total} sub={`24h ${data.loi_24h} · 7일 ${data.loi_7d}`} tone="amber" />
+            <Kpi label="매물 등록" value={data.list_total} sub={`대기 ${data.list_pending} · 7일 ${data.list_7d}`} tone="rose" />
           </section>
 
           <section className="mt-8 rounded-2xl border border-ink-100 bg-white p-6">
@@ -98,13 +105,14 @@ function Kpi({
   label: string;
   value: number;
   sub: string;
-  tone: "brand" | "emerald" | "violet" | "amber";
+  tone: "brand" | "emerald" | "violet" | "amber" | "rose";
 }) {
   const map: Record<typeof tone, string> = {
     brand: "text-brand",
     emerald: "text-emerald-600",
     violet: "text-violet-600",
     amber: "text-amber-600",
+    rose: "text-rose-600",
   };
   return (
     <div className="rounded-2xl border border-ink-100 bg-white p-5">

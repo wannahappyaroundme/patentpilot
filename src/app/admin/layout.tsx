@@ -32,6 +32,12 @@ export default function AdminLayout({
               거래 신청
             </Link>
             <Link
+              href="/admin/listings"
+              className="rounded-md px-3 py-1.5 text-ink-700 hover:bg-ink-50"
+            >
+              매물 등록
+            </Link>
+            <Link
               href="/"
               className="rounded-md px-3 py-1.5 text-brand hover:bg-brand-50"
             >
