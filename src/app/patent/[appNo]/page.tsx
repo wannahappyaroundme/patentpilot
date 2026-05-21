@@ -10,6 +10,8 @@ import { TrackedLink } from "@/components/tracked-link";
 import { FavoriteButton } from "@/components/favorite-button";
 import { PrintButton } from "@/components/print-button";
 import { PrintHeader } from "@/components/print-header";
+import { PatentRankSummary } from "@/components/patent-rank-summary";
+import { ProposalLauncher } from "@/components/proposal-launcher";
 
 export const revalidate = 300;
 
@@ -67,6 +69,8 @@ export default async function PatentDetailPage({
         <div className="space-y-8">
           <PatentMeta p={p} />
 
+          <PatentRankSummary patent={p} />
+
           <MatchCandidates patent={p} />
 
           <RelatedPatents patent={p} />
@@ -110,6 +114,7 @@ export default async function PatentDetailPage({
             >
               이 매물 거래 신청하기
             </TrackedLink>
+            <ProposalLauncher patent={p} />
             <FavoriteButton
               appNo={p.application_number}
               variant="labeled"
