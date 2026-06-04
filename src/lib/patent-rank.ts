@@ -202,19 +202,34 @@ export function patentRank(p: PatentRow): PatentRankDetail {
   const net = clip(inDegreeNorm);
 
   // === COM 사업화 준비도 ===
-  // HasSpinoff(0.35): 데이터 없음 → 0
+  // HasSpinoff(0.35): 데이터 없음 → 0 (Phase 2 DART 연동 시 활성화)
   // InventorCommercializationIndex(0.25): 공동 발명자 수가 많으면 협업력 가산
   const invCount = inventorCount(p.inventor);
   const collabCentrality = logScale(invCount, 6);
-  // HasFollowOnFunding(0.20) + ProjectFundingScale(0.20): rnd_department로 근사
-  const govProject = govProjectScore(p.rnd_department);
+  // HasFollowOnFunding(0.20) + ProjectFundingScale(0.20):
+  // NTIS 컬럼이 join되어 있으면 진짜 값 사용, 없으면 rnd_department 키워드로 근사
+  let govProject: number;
+  if (p.ntis_projects != null && p.ntis_projects > 0) {
+    // 진짜 NTIS 매칭 (Phase 2)
+    govProject = logScale(p.ntis_projects, 30);
+  } else {
+    // MVP 근사 — rnd_department 키워드 매칭
+    govProject = govProjectScore(p.rnd_department);
+  }
+  // ProjectFundingScale: NTIS 예산이 있으면 사용 (단위: 억 원)
+  const fundingScale =
+    p.ntis_funding_billions != null && p.ntis_funding_billions > 0
+      ? logScale(p.ntis_funding_billions, 50)
+      : 0;
   // TransferEvents: 이전 이력 있으면 사업화 활동 흔적
   const transferActivity = logScale(p.transfer_events ?? 0, 5);
+  // NTIS 데이터 있으면 govProject + fundingScale 분리 사용, 없으면 govProject 단일
+  const usingRealNtis = p.ntis_projects != null && p.ntis_projects > 0;
   const com = clip(
     0.35 * 0 +
       0.25 * collabCentrality +
-      0.20 * govProject +
-      0.20 * transferActivity,
+      (usingRealNtis ? 0.20 * govProject + 0.20 * fundingScale : 0.20 * govProject) +
+      (usingRealNtis ? 0 : 0.20 * transferActivity),
   );
 
   const overall = clip(

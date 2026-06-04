@@ -4,6 +4,7 @@ import type { PatentRow } from "@/lib/types";
 import { formatNumber, urgencyLabel } from "@/lib/format";
 import { TrackedLink } from "@/components/tracked-link";
 import { FavoriteButton } from "@/components/favorite-button";
+import { PatentRankMini } from "@/components/patent-rank-mini";
 
 const URGENCY_STYLE: Record<PatentRow["urgency"], string> = {
   RED: "bg-red-50 text-red-700 ring-red-100",
@@ -48,7 +49,8 @@ export function PatentCard({ p }: { p: PatentRow }) {
             <span className="text-xs text-ink-500">{remaining}</span>
           )}
         </div>
-        <div className="flex items-center gap-0.5">
+        <div className="flex items-center gap-1.5">
+          <PatentRankMini patent={p} size={44} />
           <FavoriteButton appNo={p.application_number} />
           {p.kipris_link && (
             <TrackedLink

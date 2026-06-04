@@ -33,4 +33,7 @@ export interface PatentRow {
   kipris_link: string;
   urgency: Urgency;
   remaining_years: number | null;
+  // NTIS R&D 과제 매칭 결과 (org_ntis_summary join — Phase 2에 활성화)
+  ntis_projects?: number | null;
+  ntis_funding_billions?: number | null;
 }

@@ -43,6 +43,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "이메일 형식이 올바르지 않습니다." }, { status: 400 });
   }
 
+  const patentrankPublic = get("patentrank_public") === "no" ? false : true;
   const row = {
     patent_application_number: get("patent_application_number") || null,
     title,
@@ -54,6 +55,11 @@ export async function POST(req: NextRequest) {
     contact_email,
     contact_phone: get("contact_phone"),
     message: get("message"),
+    // Phase 2 — listings 테이블에 patentrank_public 컬럼 추가 후 활성화
+    // 현재는 message 끝에 [PatentRank: 비공개] 메모로 운영자 알림
+    ...(patentrankPublic === false
+      ? { message: `${get("message")}\n\n[운영자 메모: PatentRank 비공개 요청]` }
+      : {}),
   };
 
   try {

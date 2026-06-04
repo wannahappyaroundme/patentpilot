@@ -23,6 +23,7 @@ interface FormValues {
   contact_phone: string;
   message: string;
   website_alt: string;
+  patentrank_public: "yes" | "no";
 }
 
 const INITIAL: FormValues = {
@@ -37,6 +38,7 @@ const INITIAL: FormValues = {
   contact_phone: "",
   message: "",
   website_alt: "",
+  patentrank_public: "yes",
 };
 
 export function ListingForm() {
@@ -223,6 +225,39 @@ export function ListingForm() {
           error={errors.contact_phone}
         />
       </section>
+
+      <div className="space-y-3 border-t border-ink-50 pt-5">
+        <Label>PatentRank 점수 외부 공개</Label>
+        <p className="text-xs text-ink-500">
+          PatentPilot은 공개된 KIPRIS 시그널(청구항·인용·패밀리 등)로 매물에
+          5축 점수와 등급을 부여합니다. 매도 기관이 외부 노출을 원치 않으면
+          비공개로 설정할 수 있습니다.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <label className="flex cursor-pointer items-center gap-2 rounded-md border border-ink-100 bg-white px-3 py-2 text-sm has-[:checked]:border-brand has-[:checked]:bg-brand-50">
+            <input
+              type="radio"
+              name="patentrank_public"
+              value="yes"
+              checked={values.patentrank_public === "yes"}
+              onChange={() => setField("patentrank_public", "yes")}
+              className="accent-brand"
+            />
+            공개 (기본) — 매수 후보가 점수 확인 가능
+          </label>
+          <label className="flex cursor-pointer items-center gap-2 rounded-md border border-ink-100 bg-white px-3 py-2 text-sm has-[:checked]:border-brand has-[:checked]:bg-brand-50">
+            <input
+              type="radio"
+              name="patentrank_public"
+              value="no"
+              checked={values.patentrank_public === "no"}
+              onChange={() => setField("patentrank_public", "no")}
+              className="accent-brand"
+            />
+            비공개 — &quot;평가 비공개&quot; 라벨로 표시
+          </label>
+        </div>
+      </div>
 
       <div className="border-t border-ink-50 pt-5">
         <Label>메시지</Label>

@@ -28,6 +28,24 @@ export default function AboutPage() {
         <Card num="03" title="KIPRIS 직접 연결" body="모든 매물의 원문은 KIPRIS 공식 페이지로 새 창 연결. 청구항·서지 정보 가공 없음." />
       </section>
 
+      <section className="rounded-2xl border border-brand-100 bg-brand-50/30 p-8">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="text-xl font-bold">PatentRank 5축 학술 모델</h2>
+            <p className="mt-2 max-w-2xl text-sm text-ink-700">
+              모든 매물에 0~100 점수와 S/A/B/C/D 등급을 부여합니다. 6편 학술 논문
+              근거, MVP 단계의 다중공선성·가중치 한계까지 한 페이지로 공개합니다.
+            </p>
+          </div>
+          <Link
+            href="/about/patent-rank"
+            className="inline-flex items-center gap-1 rounded-md bg-brand px-4 py-2 text-sm font-semibold text-white hover:brightness-110"
+          >
+            방법론 페이지 →
+          </Link>
+        </div>
+      </section>
+
       <section className="rounded-2xl border border-ink-100 bg-ink-50/50 p-8">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-xl font-bold">데이터</h2>

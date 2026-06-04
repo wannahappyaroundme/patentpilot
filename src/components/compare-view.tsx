@@ -11,6 +11,8 @@ import {
 import { formatNumber, urgencyLabel } from "@/lib/format";
 import { track } from "@/lib/analytics";
 import type { PatentRow } from "@/lib/types";
+import { PatentRankMini } from "@/components/patent-rank-mini";
+import { patentRank } from "@/lib/patent-rank";
 
 const URGENCY_CHIP: Record<PatentRow["urgency"], string> = {
   RED: "bg-red-50 text-red-700 ring-red-100",
@@ -183,6 +185,9 @@ export function CompareView() {
                         <X size={14} />
                       </button>
                     </div>
+                    <div className="mt-2 flex justify-center">
+                      <PatentRankMini patent={p} size={56} />
+                    </div>
                   </th>
                 );
               })}
@@ -215,6 +220,62 @@ export function CompareView() {
                 <span className="rounded-full bg-ink-50 px-2 py-0.5 text-xs">{p.ipc_primary || "—"}</span>
               )}
             />
+            {/* === PatentRank 5축 섹션 === */}
+            <tr>
+              <th
+                colSpan={rows.length + 1}
+                className="sticky left-0 bg-brand-50/30 px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wide text-brand"
+              >
+                PatentRank 5축 · 가중치 INV 0.25 / IMP 0.20 / MKT 0.20 / NET 0.20 / COM 0.15
+              </th>
+            </tr>
+            <ComparisonRow
+              label="종합 점수"
+              rows={rows}
+              cell={(p) => `${patentRank(p).overall}점`}
+              highlightMax
+            />
+            <ComparisonRow
+              label="INV 혁신성"
+              rows={rows}
+              cell={(p) => patentRank(p).inv}
+              highlightMax
+            />
+            <ComparisonRow
+              label="IMP 영향력 ⚠"
+              rows={rows}
+              cell={(p) => patentRank(p).imp}
+              highlightMax
+            />
+            <ComparisonRow
+              label="MKT 시장성"
+              rows={rows}
+              cell={(p) => patentRank(p).mkt}
+              highlightMax
+            />
+            <ComparisonRow
+              label="NET 중심성 ⚠"
+              rows={rows}
+              cell={(p) => patentRank(p).net}
+              highlightMax
+            />
+            <ComparisonRow
+              label="COM 사업화"
+              rows={rows}
+              cell={(p) => patentRank(p).com}
+              highlightMax
+            />
+            <tr>
+              <td
+                colSpan={rows.length + 1}
+                className="bg-ink-50/40 px-4 py-2 text-[10px] leading-relaxed text-ink-500"
+              >
+                ⚠ <strong>MVP 한정:</strong> IMP·NET 두 축은 현재 동일한
+                citation_count 변수 기반(다중공선성). v2에서 PageRank·Betweenness
+                분리 예정. 가중치는 트레이드오프 서술이며 AHP 검증 전.
+              </td>
+            </tr>
+
             <ComparisonRow label="출원일" rows={rows} cell={(p) => p.application_date ?? "—"} />
             <ComparisonRow label="등록일" rows={rows} cell={(p) => p.registration_date ?? "—"} />
             <ComparisonRow

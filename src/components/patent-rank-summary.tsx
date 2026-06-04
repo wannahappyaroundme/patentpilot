@@ -110,15 +110,35 @@ export function PatentRankSummary({ patent }: Props) {
         </div>
       </div>
 
-      <footer className="mt-4 rounded-md bg-ink-50/60 p-3 text-[11px] leading-relaxed text-ink-500">
-        <strong className="text-ink-700">MVP 한정:</strong> NET 축은 in-degree
-        centrality로 PageRank를 근사하며, COM 축은 NTIS 키워드 + 이전 이력으로
-        외부 DART/NTIS 데이터를 근사합니다. 가중치(0.25/0.20/0.20/0.20/0.15)는
-        프로젝트 내부 문서{" "}
-        <code className="rounded bg-white px-1 py-0.5 text-[10px] text-ink-700">
-          5축 가중치 스코어 근거.md
-        </code>{" "}
-        에 정리되어 있습니다.
+      <footer className="mt-4 space-y-2 rounded-md bg-ink-50/60 p-3 text-[11px] leading-relaxed text-ink-500">
+        <p>
+          <strong className="text-ink-700">⚠ MVP 한정:</strong> IMP·NET 두 축은
+          현재 동일한 citation_count 변수를 공유합니다(다중공선성). v2에서 NET을
+          진짜 PageRank로 분리, COM은 NTIS·DART 연동 예정. 가중치
+          0.25/0.20/0.20/0.20/0.15는 학술 근거 6편이 아닌 내부 트레이드오프
+          서술이며 AHP·sensitivity 검증 전입니다.{" "}
+          <a
+            href="/about/patent-rank"
+            className="text-brand hover:underline"
+          >
+            방법론 페이지 →
+          </a>
+        </p>
+        <p>
+          <strong className="text-ink-700">매도자 안내:</strong> 본 점수는 공개
+          KIPRIS 시그널 기반이며, 매도 기관이{" "}
+          <a href="/list" className="text-brand hover:underline">
+            매물 등록
+          </a>{" "}
+          시 비공개 옵션을 선택하거나{" "}
+          <a
+            href="mailto:ethos614@gmail.com?subject=PatentRank%20%EB%B9%84%EA%B3%B5%EA%B0%9C%20%EC%9A%94%EC%B2%AD"
+            className="text-brand hover:underline"
+          >
+            ethos614@gmail.com
+          </a>
+          으로 비공개 요청을 보낼 수 있습니다.
+        </p>
       </footer>
     </section>
   );
