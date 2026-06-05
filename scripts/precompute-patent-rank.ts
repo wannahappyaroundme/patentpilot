@@ -15,6 +15,13 @@
  * 효과: 매물 카드/시장 페이지/통계 페이지 모두 "풀 200건 한정" 제거 → 전수 정렬·필터·통계.
  */
 
+// Node 20에서 supabase-js realtime이 native WebSocket을 찾지 못해 실패하므로
+// 'ws' 패키지로 globalThis.WebSocket 폴리필. Node 22+ 에서는 무해 (이미 존재).
+import WS from "ws";
+if (typeof (globalThis as { WebSocket?: unknown }).WebSocket === "undefined") {
+  (globalThis as { WebSocket: unknown }).WebSocket = WS;
+}
+
 import { createClient } from "@supabase/supabase-js";
 import { patentRank, patentRankGrade } from "../src/lib/patent-rank";
 import type { PatentRow } from "../src/lib/types";
