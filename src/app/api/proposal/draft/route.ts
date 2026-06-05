@@ -158,8 +158,9 @@ async function callOpenAi(
 
 스타일 가이드:
 - 톤: 정중하면서 명확. 한국 기업 R&D 팀장 박상훈(40대 중반)이 받았을 때 위화감 없는 톤.
-- 길이: 본문 220~320자 (지나치게 짧거나 길지 않게).
-- 구성: (1) 매물 제목·기관 한 줄 소개 (2) 매수 후보 기업과의 핵심 매칭 근거 (3) PatentRank 5축 종합 점수 한 줄 (4) 다음 단계(짧은 미팅 제안) (5) 마무리 인사.
+- 길이: 본문 240~360자.
+- 구성: (1) 매물 제목·기관 한 줄 소개 (2) 매수 후보 기업과의 핵심 매칭 근거 (3) PatentRank 5축 종합 점수 + **가장 높은 2축의 이름과 점수를 명시적으로 강조** ("INV 혁신성 82점·MKT 시장성 75점이 우수합니다" 식) (4) 다음 단계(짧은 미팅 제안) (5) 마무리 인사.
+- 5축 약어 풀이: INV=혁신성, IMP=영향력, MKT=시장성, NET=중심성, COM=사업화. 본문에서는 한글 풀어쓰기 사용.
 - 절대 금지: 가격 약속, 라이선스 조건 단정, 과장된 형용사("최고의", "혁명적인"), 이모지.
 - 출처/링크는 본문에 넣지 않음 (별도 첨부 가정).
 - 발신: "PatentPilot 운영팀 / ethos614@gmail.com"으로 마무리.
@@ -170,6 +171,19 @@ async function callOpenAi(
   "body": "본문 전체 (인사 포함, 줄바꿈 \\n 포함)"
 }
 JSON만 출력. 설명 금지.`;
+
+    // 가장 높은 2개 축 선정 (강점 자동 강조용)
+    const axisRows: Array<{ key: string; label: string; score: number }> = [
+      { key: "inv", label: "혁신성", score: input.rank.inv },
+      { key: "imp", label: "영향력", score: input.rank.imp },
+      { key: "mkt", label: "시장성", score: input.rank.mkt },
+      { key: "net", label: "중심성", score: input.rank.net },
+      { key: "com", label: "사업화", score: input.rank.com },
+    ];
+    const topAxes = [...axisRows].sort((a, b) => b.score - a.score).slice(0, 2);
+    const topAxesLabel = topAxes
+      .map((a) => `${a.label} ${a.score}점`)
+      .join(" · ");
 
     const user = `[매물 정보]
 - 제목: ${p.title}
@@ -184,6 +198,7 @@ JSON만 출력. 설명 금지.`;
 [PatentRank 5축 점수 / 100]
 - 종합: ${input.rank.overall} (등급 ${input.grade.grade})
 - 혁신성 ${input.rank.inv} · 영향력 ${input.rank.imp} · 시장성 ${input.rank.mkt} · 중심성 ${input.rank.net} · 사업화 ${input.rank.com}
+- **가장 우수한 2축**: ${topAxesLabel} ← 본문에서 반드시 명시적으로 강조할 것
 
 [매수 후보 기업]
 - 기업명: ${input.buyerCompanyName}
@@ -255,6 +270,17 @@ function templateProposal(input: GenerateInput): { subject: string; body: string
   const orgName = p.university_name || p.applicant;
   const orgType = p.org_type === "GRI" ? "정출연" : p.org_type === "UNIV" ? "대학 산학협력단" : "보유 기관";
 
+  // 가장 높은 2축 자동 강조
+  const axisRows = [
+    { label: "혁신성", score: input.rank.inv },
+    { label: "영향력", score: input.rank.imp },
+    { label: "시장성", score: input.rank.mkt },
+    { label: "중심성", score: input.rank.net },
+    { label: "사업화", score: input.rank.com },
+  ];
+  const topAxes = [...axisRows].sort((a, b) => b.score - a.score).slice(0, 2);
+  const topAxesLabel = topAxes.map((a) => `${a.label} ${a.score}점`).join(" · ");
+
   const subject = `[PatentPilot] ${orgName} ${p.ipc_primary} 특허 — ${input.buyerCompanyName} 매칭 제안`;
 
   const body = `${input.buyerCompanyName} R&D 담당자님께,
@@ -267,6 +293,7 @@ ${orgName}(${orgType})이 보유한 아래 특허가 귀사의 ${input.buyerIndu
 — 출원번호: ${p.application_number}
 — 주 IPC: ${p.ipc_primary} · 청구항 ${p.claims_count}개 · 피인용 ${p.citation_count}
 — PatentRank 5축 종합: ${input.rank.overall}점 (등급 ${input.grade.grade}) — ${input.grade.desc}
+— 특히 우수한 축: ${topAxesLabel}
 
 특히 ${input.matchedIpc || p.ipc_primary} 영역에서 귀사의 기존 R&D 라인업과 보완 가능성이 큰 매물입니다. 권리자 측은 ${p.remaining_years ?? "?"}년의 잔여 권리기간 동안 라이선스 또는 양도 형태 모두 검토 가능합니다.
 

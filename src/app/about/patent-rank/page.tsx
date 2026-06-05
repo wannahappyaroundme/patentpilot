@@ -152,7 +152,24 @@ export default function PatentRankAboutPage() {
         </ul>
       </Section>
 
-      <Section title="3. 등급 컷오프">
+      <Section title="3. 매물 풀 실제 분포">
+        <p>현재 활성 매물 풀에서 5축 점수가 어떻게 분포하는지 한 페이지로 확인할
+          수 있습니다.</p>
+        <div className="mt-4 rounded-xl border border-brand-100 bg-brand-50/30 p-5">
+          <Link
+            href="/stats/patent-rank"
+            className="inline-flex items-center gap-2 rounded-md bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:brightness-110"
+          >
+            📊 매물 풀 통계 페이지 →
+          </Link>
+          <p className="mt-3 text-xs text-ink-500">
+            종합 점수 히스토그램 · 등급 분포 · 5축 평균 · 기관별 평균 Top 12 · KPI
+            카드 4종 포함. 샘플 2,000건 / 캐시 30분.
+          </p>
+        </div>
+      </Section>
+
+      <Section title="4. 등급 컷오프">
         <p>현재 컷오프는 매물 풀 분포에 대한 사전 통계 검토 없이 설정된
           잠정 값입니다 (D-25 안에 분포 검토 후 재조정 예정).</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-5">
@@ -182,7 +199,7 @@ export default function PatentRankAboutPage() {
         </div>
       </Section>
 
-      <Section title="4. MVP 단계의 솔직한 한계">
+      <Section title="5. MVP 단계의 솔직한 한계">
         <p>모델 v1은 다음 4가지 한계를 가지며, v2 로드맵에서 순차 해소합니다.</p>
         <ol className="mt-4 list-decimal space-y-3 pl-5 text-sm leading-relaxed">
           <li>
@@ -211,7 +228,7 @@ export default function PatentRankAboutPage() {
         </ol>
       </Section>
 
-      <Section title="5. 경쟁사 비교">
+      <Section title="6. 경쟁사 비교">
         <p>한국·글로벌 IP 정보서비스와 PatentPilot PatentRank의 차이를 한 줄로
           정리합니다.</p>
         <div className="mt-4 overflow-x-auto rounded-xl border border-ink-100 bg-white">
@@ -270,7 +287,7 @@ export default function PatentRankAboutPage() {
         </p>
       </Section>
 
-      <Section title="6. v2 로드맵 (대회 후)">
+      <Section title="7. v2 로드맵 (대회 후)">
         <ul className="grid gap-3 sm:grid-cols-2">
           <RoadmapCard
             title="가중치 AHP 검증"

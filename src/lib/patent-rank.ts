@@ -272,6 +272,96 @@ export function patentRankGrade(overall: number): {
   return { grade: "D", color: "#64748B", desc: "하위 — 다른 매물 우선 검토 권장" };
 }
 
+/**
+ * "왜 이 점수?" — 각 축의 raw 입력값과 계산식을 사람이 읽을 수 있는 형태로 반환.
+ * PatentRankSummary의 explainability 토글에서 사용.
+ */
+export function patentRankExplain(
+  p: import("./types").PatentRow,
+  detail: PatentRankDetail,
+): Array<{
+  axis: keyof Omit<PatentRankBreakdown, "overall">;
+  inputs: Array<{ label: string; value: string }>;
+  formula: string;
+}> {
+  const subclasses = ipcDiversityCount(p.ipc_all);
+  const age = detail.impDetail.age;
+  const expectedCitations = Math.max(1, age * 0.6);
+  return [
+    {
+      axis: "inv",
+      inputs: [
+        { label: "독립청구항 수", value: String(p.claims_count ?? 0) },
+        { label: "IPC 서브클래스 다양성", value: `${subclasses}개` },
+      ],
+      formula:
+        "0.4×ClaimBreadth + 0.3×IPCDiversity (BackwardCitationDiversity 미적용 → 0.7로 재정규화)",
+    },
+    {
+      axis: "imp",
+      inputs: [
+        { label: "피인용 수", value: String(p.citation_count ?? 0) },
+        { label: "출원 후 경과 연수", value: `${age}년` },
+        {
+          label: "연차별 평균 기대 인용",
+          value: `${expectedCitations.toFixed(1)}건/년`,
+        },
+      ],
+      formula:
+        "ForwardCitationCount_Norm (age 보정) — Quality/Span 미구현으로 단일 신호",
+    },
+    {
+      axis: "mkt",
+      inputs: [
+        { label: "패밀리 수", value: String(p.family_count ?? 0) },
+        {
+          label: "주 IPC",
+          value: p.ipc_primary || "—",
+        },
+        {
+          label: "산업 적합도(TAM proxy)",
+          value: String(detail.mktDetail.industryAlignment),
+        },
+      ],
+      formula: "0.5×FamilySize + 0.4×IndustryAlignment(TAM) + 0.1×IsSEP(0 고정)",
+    },
+    {
+      axis: "net",
+      inputs: [
+        { label: "in-degree(피인용)", value: String(p.citation_count ?? 0) },
+      ],
+      formula:
+        "in-degree centrality (진짜 PageRank 미적용 — IMP와 같은 변수 공유, 다중공선성)",
+    },
+    {
+      axis: "com",
+      inputs: [
+        {
+          label: "공동 발명자 수",
+          value: `${detail.comDetail.inventorCount}명`,
+        },
+        {
+          label: "정부 R&D 사업명",
+          value: p.rnd_department ? p.rnd_department.slice(0, 30) : "(없음)",
+        },
+        {
+          label: "이전 이벤트",
+          value: `${p.transfer_events ?? 0}회`,
+        },
+        {
+          label: "NTIS 연동",
+          value:
+            p.ntis_projects != null && p.ntis_projects > 0
+              ? `${p.ntis_projects}건 · ${p.ntis_funding_billions ?? 0}억`
+              : "(키워드 근사 사용)",
+        },
+      ],
+      formula:
+        "0.35×HasSpinoff(0 고정) + 0.25×CollabCentrality + 0.20×GovProject + 0.20×Transfer/Funding",
+    },
+  ];
+}
+
 // 학술 근거 한 줄 (UI 툴팁용)
 export const AXIS_META: Record<
   keyof Omit<PatentRankBreakdown, "overall">,

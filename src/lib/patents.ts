@@ -114,6 +114,60 @@ export async function searchPatents(p: SearchParams): Promise<SearchResult> {
   return { rows, total: count ?? rows.length, page, perPage };
 }
 
+/**
+ * PatentRank 정렬·등급 필터를 위해 현재 필터 조건의 매물을 *한 번에 더 많이*
+ * 가져온다. perPage 캡(30)을 우회하며 sort는 urgency 고정.
+ *
+ * 한계: PatentRank는 DB 컬럼이 아닌 런타임 계산이라 *전수* 정렬은 못 함.
+ * `limit`까지의 풀만 가져와 점수 계산 → 정렬 → 페이지네이션.
+ * v2에서 patents.patent_rank 컬럼을 사전 계산해 DB 정렬로 교체 예정.
+ */
+export async function fetchActivePoolForRanking(
+  p: Omit<SearchParams, "page" | "perPage" | "sort">,
+  limit = 200,
+): Promise<PatentRow[]> {
+  const sb = client();
+  if (!sb) return [];
+
+  let q = sb
+    .from("patents")
+    .select("*")
+    .eq("latest_status", "연차료납부");
+
+  if (p.urgency && p.urgency !== "ALL") q = q.eq("urgency", p.urgency);
+  if (p.org && p.org !== "ALL") q = q.eq("org_type", p.org);
+  if (p.ipc) {
+    const prefixes = p.ipc.split(",").map((s) => s.trim()).filter(Boolean);
+    if (prefixes.length === 1) {
+      q = q.ilike("ipc_primary", `${prefixes[0]}%`);
+    } else if (prefixes.length > 1) {
+      const ors = prefixes.map((x) => `ipc_primary.ilike.${x}%`).join(",");
+      q = q.or(ors);
+    }
+  }
+  if (p.university) q = q.ilike("university_name", `%${p.university}%`);
+  if (p.q) {
+    const term = p.q.replace(/[%,]/g, " ").trim();
+    if (term) {
+      q = q.or(
+        `title.ilike.%${term}%,applicant.ilike.%${term}%,university_name.ilike.%${term}%`,
+      );
+    }
+  }
+
+  q = q
+    .order("urgency", { ascending: true })
+    .order("citation_count", { ascending: false })
+    .range(0, Math.max(0, limit - 1));
+
+  const { data, error } = await q;
+  if (error) {
+    console.error("fetchActivePoolForRanking error", error);
+    return [];
+  }
+  return (data ?? []) as PatentRow[];
+}
+
 export async function getPatentByAppNo(
   appNo: string,
 ): Promise<PatentRow | null> {

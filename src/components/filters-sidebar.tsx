@@ -17,10 +17,19 @@ const ORG_OPTS = [
 
 const SORT_OPTS = [
   { value: "urgency", label: "긴급도순" },
+  { value: "patent_rank", label: "PatentRank 높은순 ⭐" },
   { value: "recent", label: "최신 출원순" },
   { value: "citations", label: "피인용 많은순" },
   { value: "claims", label: "청구항 많은순" },
   { value: "transfers", label: "권리 이동 활발순" },
+];
+
+const GRADE_OPTS = [
+  { value: "S", label: "S", color: "#7C3AED" },
+  { value: "A", label: "A", color: "#006EFF" },
+  { value: "B", label: "B", color: "#059669" },
+  { value: "C", label: "C", color: "#D97706" },
+  { value: "D", label: "D", color: "#64748B" },
 ];
 
 const IPC_PRESETS = [
@@ -43,6 +52,9 @@ export function FiltersSidebar() {
   const [ipc, setIpc] = useState(sp.get("ipc") ?? "");
   const [university, setUniversity] = useState(sp.get("university") ?? "");
   const [sort, setSort] = useState(sp.get("sort") ?? "urgency");
+  const [grades, setGrades] = useState<string[]>(
+    (sp.get("grade") ?? "").split(",").filter(Boolean),
+  );
 
   useEffect(() => {
     setUrgency(sp.get("urgency") ?? "ALL");
@@ -50,7 +62,15 @@ export function FiltersSidebar() {
     setIpc(sp.get("ipc") ?? "");
     setUniversity(sp.get("university") ?? "");
     setSort(sp.get("sort") ?? "urgency");
+    setGrades((sp.get("grade") ?? "").split(",").filter(Boolean));
   }, [sp]);
+
+  function toggleGrade(g: string) {
+    const next = grades.includes(g)
+      ? grades.filter((x) => x !== g)
+      : [...grades, g];
+    apply({ grade: next.join(",") });
+  }
 
   function apply(next: Record<string, string>) {
     const params = new URLSearchParams(sp.toString());
@@ -114,6 +134,43 @@ export function FiltersSidebar() {
         />
       </Section>
 
+      <Section title="PatentRank 등급">
+        <div className="flex flex-wrap gap-1.5">
+          {GRADE_OPTS.map((g) => {
+            const active = grades.includes(g.value);
+            return (
+              <button
+                key={g.value}
+                type="button"
+                onClick={() => toggleGrade(g.value)}
+                aria-pressed={active}
+                className="rounded-md px-2.5 py-1 text-xs font-bold transition"
+                style={
+                  active
+                    ? { background: g.color, color: "white" }
+                    : {
+                        background: "#F1F5F9",
+                        color: "#475569",
+                        border: `1px solid ${g.color}40`,
+                      }
+                }
+              >
+                {g.label}
+              </button>
+            );
+          })}
+        </div>
+        {grades.length > 0 && (
+          <button
+            type="button"
+            onClick={() => apply({ grade: "" })}
+            className="mt-2 text-[10px] text-ink-500 hover:text-brand"
+          >
+            등급 필터 해제
+          </button>
+        )}
+      </Section>
+
       <Section title="정렬">
         <select
           value={sort}
@@ -126,6 +183,11 @@ export function FiltersSidebar() {
             </option>
           ))}
         </select>
+        {(sort === "patent_rank" || grades.length > 0) && (
+          <p className="mt-1.5 text-[10px] leading-relaxed text-ink-500">
+            ⚠ PatentRank 정렬·필터는 현재 풀 200건 기준 (v2에서 전수 정렬 예정)
+          </p>
+        )}
       </Section>
 
       <button

@@ -6,6 +6,7 @@ import {
   patentRankGrade,
 } from "@/lib/patent-rank";
 import { PatentRankRadar } from "./patent-rank-radar";
+import { PatentRankExplain } from "./patent-rank-explain";
 
 interface Props {
   patent: PatentRow;
@@ -109,6 +110,8 @@ export function PatentRankSummary({ patent }: Props) {
           </ul>
         </div>
       </div>
+
+      <PatentRankExplain patent={patent} />
 
       <footer className="mt-4 space-y-2 rounded-md bg-ink-50/60 p-3 text-[11px] leading-relaxed text-ink-500">
         <p>

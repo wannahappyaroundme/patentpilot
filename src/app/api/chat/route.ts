@@ -5,6 +5,24 @@ import { searchPatents, getPatentByAppNo } from "@/lib/patents";
 import type { PatentRow } from "@/lib/types";
 import { matchCompanies, type CompanyMatch } from "@/lib/matching";
 import { rateLimit, rateLimitHeaders } from "@/lib/rate-limit";
+import { patentRank, patentRankGrade } from "@/lib/patent-rank";
+
+function avgPatentRank(rows: PatentRow[]): { mean: number; gradeBreakdown: string } | null {
+  if (rows.length === 0) return null;
+  const scores = rows.map((p) => patentRank(p).overall);
+  const mean = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+  // 등급 분포 짧은 요약
+  const counts = new Map<string, number>();
+  for (const s of scores) {
+    const g = patentRankGrade(s).grade;
+    counts.set(g, (counts.get(g) ?? 0) + 1);
+  }
+  const gradeBreakdown = ["S", "A", "B", "C", "D"]
+    .filter((g) => (counts.get(g) ?? 0) > 0)
+    .map((g) => `${g}${counts.get(g)}`)
+    .join(" · ");
+  return { mean, gradeBreakdown };
+}
 
 export interface ChatResponse {
   kind: "search" | "patent" | "smalltalk";
@@ -101,10 +119,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(res);
     }
     const matches = await matchCompanies(patent, 5);
+    const rank = patentRank(patent);
+    const rankGrade = patentRankGrade(rank.overall);
     const lines = [
       `**${patent.title}**`,
       `${patent.university_name || patent.applicant} · ${patent.ipc_primary} · ${urgencyLabel(patent.urgency)}`,
       `청구항 ${patent.claims_count}개 · 피인용 ${patent.citation_count} · 패밀리 ${patent.family_count}`,
+      `📊 PatentRank **${rank.overall}점 (${rankGrade.grade}등급)** — INV ${rank.inv} · IMP ${rank.imp} · MKT ${rank.mkt} · NET ${rank.net} · COM ${rank.com}`,
       matches.length
         ? `매수 후보 Top: ${matches.slice(0, 3).map((m) => `${m.name}(${m.score}점)`).join(", ")}`
         : `매수 후보 시드에 매핑된 기업이 아직 없어요.`,
@@ -182,6 +203,11 @@ export async function POST(req: NextRequest) {
     reply = `${hintText}활성 매물 **${result.total.toLocaleString("ko-KR")}건**을 찾았어요. 관련도 높은 순으로 ${result.rows.length}건을 보여드립니다.`;
     if (relaxedSteps.length) {
       reply += `\n\n_💡 ${relaxedSteps.join(" / ")}._`;
+    }
+    // PatentRank 한 줄 자동 추가
+    const summary = avgPatentRank(result.rows);
+    if (summary) {
+      reply += `\n\n_📊 이 결과의 평균 PatentRank: **${summary.mean}점** (등급 분포: ${summary.gradeBreakdown})_`;
     }
   }
 
