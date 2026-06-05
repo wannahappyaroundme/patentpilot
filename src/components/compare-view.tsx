@@ -12,7 +12,7 @@ import { formatNumber, urgencyLabel } from "@/lib/format";
 import { track } from "@/lib/analytics";
 import type { PatentRow } from "@/lib/types";
 import { PatentRankMini } from "@/components/patent-rank-mini";
-import { patentRank } from "@/lib/patent-rank";
+import { patentRank, AXIS_META } from "@/lib/patent-rank";
 
 const URGENCY_CHIP: Record<PatentRow["urgency"], string> = {
   RED: "bg-red-50 text-red-700 ring-red-100",
@@ -132,8 +132,42 @@ export function CompareView() {
     setDragOverIdx(null);
   }
 
+  // PatentRank 종합 1위 매물 + 강점 축 자동 분석
+  const ranked = rows.map((p) => ({ p, r: patentRank(p) }));
+  const winner = ranked.reduce(
+    (acc, x) => (x.r.overall > acc.r.overall ? x : acc),
+    ranked[0]!,
+  );
+  const winnerAxes = (
+    ["inv", "imp", "mkt", "net", "com"] as const
+  ).map((k) => ({ key: k, score: winner.r[k], name: AXIS_META[k].name }));
+  const winnerTop2 = [...winnerAxes].sort((a, b) => b.score - a.score).slice(0, 2);
+
   return (
     <div>
+      {rows.length >= 2 && (
+        <div className="mb-4 rounded-xl border border-brand-100 bg-brand-50/30 p-4 text-sm">
+          <div className="flex flex-wrap items-baseline gap-2">
+            <span className="text-xs font-semibold uppercase tracking-wide text-brand">
+              📊 비교 요약
+            </span>
+            <span className="font-bold text-ink-900">
+              {winner.p.title?.slice(0, 50) || winner.p.application_number}
+              {winner.p.title && winner.p.title.length > 50 ? "…" : ""}
+            </span>
+            <span className="rounded-full bg-white px-2 py-0.5 text-xs font-bold text-brand">
+              PatentRank {winner.r.overall}점 1위
+            </span>
+          </div>
+          <p className="mt-1.5 text-xs leading-relaxed text-ink-700">
+            특히{" "}
+            <strong className="text-brand">
+              {winnerTop2.map((a) => `${a.name} ${a.score}점`).join(" · ")}
+            </strong>
+            이 가장 우수합니다. ({winner.p.university_name || winner.p.applicant})
+          </p>
+        </div>
+      )}
       <p className="mb-3 text-xs text-ink-500">
         💡 컬럼 헤더의 <GripVertical size={12} className="inline align-text-bottom" /> 핸들을 드래그해서 매물 순서를 바꿀 수 있어요.
       </p>

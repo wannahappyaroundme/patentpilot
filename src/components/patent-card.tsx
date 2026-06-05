@@ -5,6 +5,7 @@ import { formatNumber, urgencyLabel } from "@/lib/format";
 import { TrackedLink } from "@/components/tracked-link";
 import { FavoriteButton } from "@/components/favorite-button";
 import { PatentRankMini } from "@/components/patent-rank-mini";
+import { patentRank, patentRankGrade } from "@/lib/patent-rank";
 
 const URGENCY_STYLE: Record<PatentRow["urgency"], string> = {
   RED: "bg-red-50 text-red-700 ring-red-100",
@@ -26,8 +27,24 @@ export function PatentCard({ p }: { p: PatentRow }) {
       ? `잔여 ${p.remaining_years}년`
       : null;
 
+  // 등급 색 막대 — DB 컬럼 우선, 없으면 런타임 계산
+  const overallScore = p.patent_rank ?? patentRank(p).overall;
+  const gradeInfo = patentRankGrade(overallScore);
+  const isLowConfidence = overallScore < 35;
+
   return (
-    <article className="group relative flex h-full flex-col rounded-2xl border border-ink-100 bg-white p-5 transition hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-card">
+    <article
+      className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-ink-100 bg-white p-5 transition hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-card"
+    >
+      {/* 좌측 등급 색 막대 (4px) */}
+      <span
+        className="absolute left-0 top-0 h-full w-1"
+        style={{
+          background: isLowConfidence ? "#CBD5E1" : gradeInfo.color,
+          opacity: isLowConfidence ? 0.4 : 1,
+        }}
+        aria-hidden="true"
+      />
       <div className="flex items-start justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
           <span

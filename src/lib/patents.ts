@@ -20,7 +20,14 @@ export interface SearchParams {
   university?: string;
   page?: number;
   perPage?: number;
-  sort?: "urgency" | "recent" | "citations" | "claims" | "transfers";
+  sort?:
+    | "urgency"
+    | "recent"
+    | "citations"
+    | "claims"
+    | "transfers"
+    | "patent_rank";
+  grades?: string[]; // ["S","A","B","C","D"] 부분집합
 }
 
 export interface SearchResult {
@@ -68,6 +75,10 @@ export async function searchPatents(p: SearchParams): Promise<SearchResult> {
 
   if (p.university) q = q.ilike("university_name", `%${p.university}%`);
 
+  if (p.grades && p.grades.length > 0) {
+    q = q.in("patent_rank_grade", p.grades);
+  }
+
   if (p.q) {
     const term = p.q.replace(/[%,]/g, " ").trim();
     if (term) {
@@ -89,6 +100,12 @@ export async function searchPatents(p: SearchParams): Promise<SearchResult> {
       break;
     case "transfers":
       q = q.order("transfer_events", { ascending: false });
+      break;
+    case "patent_rank":
+      // ETL이 사전 계산한 patent_rank 컬럼 사용 (NULLS LAST)
+      q = q
+        .order("patent_rank", { ascending: false, nullsFirst: false })
+        .order("citation_count", { ascending: false });
       break;
     case "urgency":
     default:
@@ -166,6 +183,45 @@ export async function fetchActivePoolForRanking(
     return [];
   }
   return (data ?? []) as PatentRow[];
+}
+
+/**
+ * 비슷한 점수대 매물 추천 — PatentRank ±5점 범위에서 같은 IPC 섹션의 다른 매물.
+ * 점수 ETL이 적용된 상태에서만 의미 있음 (patent_rank IS NOT NULL 필터).
+ */
+export async function getSimilarRankPatents(
+  patent: PatentRow,
+  limit = 6,
+): Promise<PatentRow[]> {
+  const sb = client();
+  if (!sb) return [];
+  const overall = patent.patent_rank;
+  if (overall == null) return [];
+
+  const ipcSection = (patent.ipc_primary || "")[0]?.toUpperCase();
+  const minScore = Math.max(0, overall - 5);
+  const maxScore = Math.min(100, overall + 5);
+
+  let q = sb
+    .from("patents")
+    .select("*")
+    .eq("latest_status", "연차료납부")
+    .gte("patent_rank", minScore)
+    .lte("patent_rank", maxScore)
+    .neq("application_number", patent.application_number);
+
+  if (ipcSection) {
+    q = q.ilike("ipc_primary", `${ipcSection}%`);
+  }
+
+  q = q
+    .order("patent_rank", { ascending: false, nullsFirst: false })
+    .order("citation_count", { ascending: false })
+    .limit(limit);
+
+  const { data, error } = await q;
+  if (error || !data) return [];
+  return data as PatentRow[];
 }
 
 export async function getPatentByAppNo(

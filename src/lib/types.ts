@@ -36,4 +36,7 @@ export interface PatentRow {
   // NTIS R&D 과제 매칭 결과 (org_ntis_summary join — Phase 2에 활성화)
   ntis_projects?: number | null;
   ntis_funding_billions?: number | null;
+  // PatentRank 사전 계산 컬럼 (scripts/precompute-patent-rank.ts로 적재)
+  patent_rank?: number | null;
+  patent_rank_grade?: string | null;
 }

@@ -20,9 +20,13 @@ const AXES: Array<keyof ReturnType<typeof patentRank>> = [
  * D등급(35점 미만)은 회색조 + "정보 부족" 라벨로 시연 사고 방지.
  */
 export function PatentRankMini({ patent, size = 48, showScore = true }: Props) {
+  // 5축 raw 값은 런타임 계산이 필요(레이더용). 종합 점수는 DB 컬럼 우선.
   const scores = patentRank(patent);
-  const grade = patentRankGrade(scores.overall);
-  const isLowConfidence = scores.overall < 35;
+  const overall = patent.patent_rank ?? scores.overall;
+  const grade = patent.patent_rank_grade
+    ? { ...patentRankGrade(overall), grade: patent.patent_rank_grade }
+    : patentRankGrade(overall);
+  const isLowConfidence = overall < 35;
 
   const cx = size / 2;
   const cy = size / 2;
@@ -63,8 +67,8 @@ export function PatentRankMini({ patent, size = 48, showScore = true }: Props) {
       className="inline-flex items-center gap-1.5"
       title={
         isLowConfidence
-          ? `PatentRank ${scores.overall} · 평가 정보 부족 (참고용)`
-          : `PatentRank ${scores.overall} · 등급 ${grade.grade}`
+          ? `PatentRank ${overall} · 평가 정보 부족 (참고용)`
+          : `PatentRank ${overall} · 등급 ${grade.grade}`
       }
     >
       {/* 등급 배지 */}
@@ -79,7 +83,7 @@ export function PatentRankMini({ patent, size = 48, showScore = true }: Props) {
               className="rounded px-1.5 py-0.5 text-[10px] font-bold text-white"
               style={{ background: grade.color }}
             >
-              {grade.grade} {scores.overall}
+              {grade.grade} {overall}
             </span>
           )}
         </div>
@@ -91,7 +95,7 @@ export function PatentRankMini({ patent, size = 48, showScore = true }: Props) {
         height={size}
         viewBox={`0 0 ${size} ${size}`}
         role="img"
-        aria-label={`PatentRank ${scores.overall}`}
+        aria-label={`PatentRank ${overall}`}
         style={{ opacity: isLowConfidence ? 0.5 : 1 }}
       >
         <path d={pentagon(1)} fill="none" stroke="#E2E8F0" strokeWidth={0.8} />

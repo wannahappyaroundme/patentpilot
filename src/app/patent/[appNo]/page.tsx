@@ -12,6 +12,7 @@ import { PrintButton } from "@/components/print-button";
 import { PrintHeader } from "@/components/print-header";
 import { PatentRankSummary } from "@/components/patent-rank-summary";
 import { ProposalLauncher } from "@/components/proposal-launcher";
+import { SimilarRankPatents } from "@/components/similar-rank-patents";
 
 export const revalidate = 300;
 
@@ -72,6 +73,8 @@ export default async function PatentDetailPage({
           <PatentRankSummary patent={p} />
 
           <MatchCandidates patent={p} />
+
+          <SimilarRankPatents patent={p} />
 
           <RelatedPatents patent={p} />
         </div>

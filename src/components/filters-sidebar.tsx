@@ -185,7 +185,7 @@ export function FiltersSidebar() {
         </select>
         {(sort === "patent_rank" || grades.length > 0) && (
           <p className="mt-1.5 text-[10px] leading-relaxed text-ink-500">
-            ⚠ PatentRank 정렬·필터는 현재 풀 200건 기준 (v2에서 전수 정렬 예정)
+            ✓ 전수 매물 기준 DB 정렬·필터 (사전 계산된 patent_rank 컬럼)
           </p>
         )}
       </Section>

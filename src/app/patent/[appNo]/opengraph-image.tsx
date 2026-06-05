@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { getPatentByAppNo } from "@/lib/patents";
+import { patentRank, patentRankGrade } from "@/lib/patent-rank";
 
 export const runtime = "nodejs";
 export const alt = "PatentPilot 매물 카드";
@@ -49,6 +50,12 @@ export default async function PatentOgImage({
   const title = (p.title || "").slice(0, 80);
   const orgName = p.university_name || p.applicant || "";
 
+  // PatentRank 등급 — DB 컬럼 우선
+  const overall = p.patent_rank ?? patentRank(p).overall;
+  const grade = p.patent_rank_grade ?? patentRankGrade(overall).grade;
+  const gradeColor = patentRankGrade(overall).color;
+  const isLow = overall < 35;
+
   return new ImageResponse(
     (
       <div
@@ -92,6 +99,22 @@ export default async function PatentOgImage({
             <span style={{ color: "#006EFF" }}>Pilot</span>
           </div>
           <div style={{ flex: 1 }} />
+          {!isLow && (
+            <div
+              style={{
+                padding: "8px 16px",
+                background: gradeColor,
+                color: "white",
+                fontSize: 22,
+                fontWeight: 800,
+                borderRadius: 999,
+                display: "flex",
+                marginRight: 10,
+              }}
+            >
+              PatentRank {grade} · {overall}
+            </div>
+          )}
           <div
             style={{
               padding: "8px 16px",

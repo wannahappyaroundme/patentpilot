@@ -61,11 +61,18 @@ export default async function PatentRankStatsPage() {
           매물이 평균적으로 더 높은 점수를 받는지 한 화면에 정리합니다.
         </p>
         <div className="mt-4 flex flex-wrap gap-2 text-xs">
-          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 font-medium text-emerald-700">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-            샘플 {stats.sample_size.toLocaleString()}건 · 활성 풀{" "}
-            {stats.total_active_pool.toLocaleString()}건
-          </span>
+          {stats.is_full_pool ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 font-medium text-emerald-700">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              전수 통계 · 활성 풀 {stats.total_active_pool.toLocaleString()}건
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-3 py-1 font-medium text-amber-700">
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+              샘플 {stats.sample_size.toLocaleString()}건 · 활성 풀{" "}
+              {stats.total_active_pool.toLocaleString()}건 (ETL 적용 전 폴백)
+            </span>
+          )}
           <span className="rounded-full bg-ink-50 px-3 py-1 font-medium text-ink-600">
             KIPRIS 동기화: {KIPRIS_SYNC_DATE}
           </span>
@@ -228,8 +235,9 @@ export default async function PatentRankStatsPage() {
           </table>
         </div>
         <p className="mt-2 text-xs text-ink-500">
-          ※ 본 통계는 활성 매물 풀 중 출원번호 기준 결정적 샘플 {stats.sample_size.toLocaleString()}건이며,
-          전수 통계는 v2의 patents.patent_rank 컬럼 사전 계산 후 제공됩니다.
+          {stats.is_full_pool
+            ? `※ 본 통계는 활성 매물 풀 ${stats.total_active_pool.toLocaleString()}건 전수 집계입니다 (patent_rank 컬럼 + Postgres percentile_cont 기준).`
+            : `※ 본 통계는 활성 매물 풀 중 출원번호 기준 결정적 샘플 ${stats.sample_size.toLocaleString()}건이며, ETL 적용 후 전수 통계로 교체됩니다.`}
         </p>
       </section>
 
