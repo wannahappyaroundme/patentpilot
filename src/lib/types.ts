@@ -39,4 +39,12 @@ export interface PatentRow {
   // PatentRank 사전 계산 컬럼 (scripts/precompute-patent-rank.ts로 적재)
   patent_rank?: number | null;
   patent_rank_grade?: string | null;
+  // CitationSpan ETL (etl/patentpilot_etl/citation_span.py) — IMP 축 보강
+  citation_span_norm?: number | null;
+  citation_span_n?: number | null;
+  citation_span_conf?: "HIGH" | "MED" | "LOW" | null;
+  // PriorPatentCount ETL (etl/patentpilot_etl/prior_patent_count.py) — COM 축 보강
+  prior_patent_count?: number | null;
+  prior_patent_count_max?: number | null;
+  prior_patent_conf?: "HIGH" | "MED" | "LOW" | null;
 }

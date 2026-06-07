@@ -34,6 +34,9 @@ export interface PatentRankDetail extends PatentRankBreakdown {
   impDetail: {
     citationNorm: number;
     age: number;
+    citationSpan: number | null;          // Shannon entropy 정규화 (CitationSpan ETL)
+    citationSpanN: number | null;          // 인용 표본 수
+    citationSpanConf: "HIGH" | "MED" | "LOW" | null;
   };
   mktDetail: {
     familyNorm: number;
@@ -43,9 +46,12 @@ export interface PatentRankDetail extends PatentRankBreakdown {
     inDegreeNorm: number;
   };
   comDetail: {
-    govProject: number;       // 정부 R&D 사업 표식
-    transferActivity: number; // 이전 이력 활성도
-    inventorCount: number;    // 공동 발명자 수
+    govProject: number;
+    transferActivity: number;
+    inventorCount: number;
+    inventorIndex: number;                 // collab + prior 통합값 (0~100)
+    priorPatentNorm: number | null;        // logScale 적용 후 (0~100)
+    priorPatentConf: "HIGH" | "MED" | "LOW" | null;
   };
 }
 
@@ -184,8 +190,21 @@ export function patentRank(p: PatentRow): PatentRankDetail {
   const age = ageYears(p.application_date);
   const expectedCitations = Math.max(1, age * 0.6);
   const citationNorm = logScale((p.citation_count ?? 0) / expectedCitations * 10, 30);
-  // Quality, Span: 데이터 없음 → IMP는 ForwardCitation 단일로 근사
-  const imp = clip(citationNorm);
+  // CitationSpan: ETL 적재 + N≥5 + conf!=LOW일 때만 신호로 채택
+  const citationSpan: number | null =
+    p.citation_span_norm != null &&
+    (p.citation_span_n ?? 0) >= 5 &&
+    p.citation_span_conf !== "LOW"
+      ? clip(p.citation_span_norm)
+      : null;
+  const citationSpanN: number | null = p.citation_span_n ?? null;
+  const citationSpanConf = p.citation_span_conf ?? null;
+  // spec.md §3 IMP: 0.5×Fwd + 0.3×Quality(미구현) + 0.2×Span
+  // critic 권고로 Span 0.2 → 0.15 인하 + Quality 0 처리 → 분모 0.65 재정규화
+  const imp =
+    citationSpan != null
+      ? clip((0.5 * citationNorm + 0.15 * citationSpan) / 0.65)
+      : clip(citationNorm); // graceful fallback
 
   // === MKT 시장성 ===
   // FamilySize_Norm(0.5): 패밀리 수 로그 스케일 (cap 10)
@@ -203,31 +222,50 @@ export function patentRank(p: PatentRow): PatentRankDetail {
 
   // === COM 사업화 준비도 ===
   // HasSpinoff(0.35): 데이터 없음 → 0 (Phase 2 DART 연동 시 활성화)
-  // InventorCommercializationIndex(0.25): 공동 발명자 수가 많으면 협업력 가산
+  // InventorCommercializationIndex(0.25): collab + prior 통합
   const invCount = inventorCount(p.inventor);
   const collabCentrality = logScale(invCount, 6);
+  // PriorPatentCount (PriorPatentCount ETL — 5년 윈도우 + suspect black-list):
+  // conf == HIGH/MED일 때만 채택. cap=20 (critic 권고로 50→20)
+  const priorAcceptable =
+    p.prior_patent_count != null && p.prior_patent_conf !== "LOW";
+  const priorPatentNorm: number | null = priorAcceptable
+    ? logScale(p.prior_patent_count!, 20)
+    : null;
+  const priorPatentConf = p.prior_patent_conf ?? null;
+  // InventorIndex (동적 가중치)
+  //   HIGH: 0.30×Prior + 0.20×Collab (분모 0.50)
+  //   MED : 0.15×Prior + 0.20×Collab (분모 0.35)
+  //   LOW/NULL: Collab 단일
+  let inventorIndex: number;
+  if (priorPatentNorm != null && p.prior_patent_conf === "HIGH") {
+    inventorIndex = clip(
+      (0.30 * priorPatentNorm + 0.20 * collabCentrality) / 0.50,
+    );
+  } else if (priorPatentNorm != null && p.prior_patent_conf === "MED") {
+    inventorIndex = clip(
+      (0.15 * priorPatentNorm + 0.20 * collabCentrality) / 0.35,
+    );
+  } else {
+    inventorIndex = collabCentrality;
+  }
   // HasFollowOnFunding(0.20) + ProjectFundingScale(0.20):
   // NTIS 컬럼이 join되어 있으면 진짜 값 사용, 없으면 rnd_department 키워드로 근사
   let govProject: number;
   if (p.ntis_projects != null && p.ntis_projects > 0) {
-    // 진짜 NTIS 매칭 (Phase 2)
     govProject = logScale(p.ntis_projects, 30);
   } else {
-    // MVP 근사 — rnd_department 키워드 매칭
     govProject = govProjectScore(p.rnd_department);
   }
-  // ProjectFundingScale: NTIS 예산이 있으면 사용 (단위: 억 원)
   const fundingScale =
     p.ntis_funding_billions != null && p.ntis_funding_billions > 0
       ? logScale(p.ntis_funding_billions, 50)
       : 0;
-  // TransferEvents: 이전 이력 있으면 사업화 활동 흔적
   const transferActivity = logScale(p.transfer_events ?? 0, 5);
-  // NTIS 데이터 있으면 govProject + fundingScale 분리 사용, 없으면 govProject 단일
   const usingRealNtis = p.ntis_projects != null && p.ntis_projects > 0;
   const com = clip(
     0.35 * 0 +
-      0.25 * collabCentrality +
+      0.25 * inventorIndex +
       (usingRealNtis ? 0.20 * govProject + 0.20 * fundingScale : 0.20 * govProject) +
       (usingRealNtis ? 0 : 0.20 * transferActivity),
   );
@@ -248,13 +286,16 @@ export function patentRank(p: PatentRow): PatentRankDetail {
     com,
     overall,
     invDetail: { claimBreadth, ipcDiversity },
-    impDetail: { citationNorm, age },
+    impDetail: { citationNorm, age, citationSpan, citationSpanN, citationSpanConf },
     mktDetail: { familyNorm, industryAlignment },
     netDetail: { inDegreeNorm },
     comDetail: {
       govProject,
       transferActivity,
       inventorCount: invCount,
+      inventorIndex,
+      priorPatentNorm,
+      priorPatentConf,
     },
   };
 }
@@ -335,9 +376,16 @@ export function patentRankExplain(
           label: "연차별 평균 기대 인용",
           value: `${expectedCitations.toFixed(1)}건/년`,
         },
+        {
+          label: "인용 분야 다양성 (CitationSpan, Shannon)",
+          value:
+            detail.impDetail.citationSpan != null
+              ? `${detail.impDetail.citationSpan} (N=${detail.impDetail.citationSpanN}, ${detail.impDetail.citationSpanConf})`
+              : "(N<5 또는 미산출)",
+        },
       ],
       formula:
-        "ForwardCitationCount_Norm (age 보정) — Quality/Span 미구현으로 단일 신호",
+        "CitationSpan(N≥5, conf≠LOW) 채택 시 (0.5×Fwd + 0.15×Span)/0.65, 아니면 단일 Fwd",
     },
     {
       axis: "mkt",
@@ -370,6 +418,13 @@ export function patentRankExplain(
           value: `${detail.comDetail.inventorCount}명`,
         },
         {
+          label: "발명자 평균 prior 특허 (5년 윈도우)",
+          value:
+            p.prior_patent_count != null
+              ? `${p.prior_patent_count}건 · 신뢰도 ${p.prior_patent_conf}`
+              : "(미산출 또는 동명이인 보정 불가)",
+        },
+        {
           label: "정부 R&D 사업명",
           value: p.rnd_department ? p.rnd_department.slice(0, 30) : "(없음)",
         },
@@ -386,7 +441,7 @@ export function patentRankExplain(
         },
       ],
       formula:
-        "0.35×HasSpinoff(0 고정) + 0.25×CollabCentrality + 0.20×GovProject + 0.20×Transfer/Funding",
+        "InventorIndex = conf=HIGH ⇒ (0.30×Prior+0.20×Collab)/0.50, conf=MED ⇒ (0.15×Prior+0.20×Collab)/0.35, 그 외 ⇒ Collab 단일 → 0.25 비중",
     },
   ];
 }
@@ -404,7 +459,7 @@ export const AXIS_META: Record<
   imp: {
     name: "영향력",
     full: "Impact",
-    cite: "Trajtenberg 1990 · Hall-Jaffe-Trajtenberg 2005",
+    cite: "Trajtenberg 1990 · Hall-Jaffe-Trajtenberg 2005 · OECD Generality 2013 (Shannon)",
   },
   mkt: {
     name: "시장성",
@@ -419,6 +474,6 @@ export const AXIS_META: Record<
   com: {
     name: "사업화",
     full: "Commercialization Readiness",
-    cite: "Carpenter-Narin-Woolf 1981 변형 · NTIS 연계",
+    cite: "Carpenter-Narin-Woolf 1981 · NTIS 연계 · KIPRIS PriorPatent (5년 윈도우)",
   },
 };
