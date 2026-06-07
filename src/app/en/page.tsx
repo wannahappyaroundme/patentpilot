@@ -14,7 +14,7 @@ export const metadata = {
   openGraph: {
     title: "PatentPilot — Awakening Korea's sleeping R&D patents",
     description:
-      "Discover 158,777 actively-maintained Korean R&D patents close to their 20-year expiration. Match TLOs and GRIs with corporate buyers.",
+      "Discover 104,582 actively-maintained Korean R&D patents close to their 20-year expiration. Match TLOs and GRIs with corporate buyers.",
     url: "https://patentpilot.kr/en",
     locale: "en_US",
   },
@@ -33,7 +33,7 @@ export default function EnLandingPage() {
           sleeping R&amp;D patents.
         </h1>
         <p className="mt-5 text-base leading-relaxed text-ink-500 sm:text-lg">
-          158,777 university &amp; GRI patents are approaching their 20-year
+          104,582 university &amp; GRI patents are approaching their 20-year
           expiration — and the renewal-fee clock is ticking. PatentPilot finds
           the ones with the strongest sell-side motivation and matches them
           with corporate buyers who actually need the technology.
@@ -82,10 +82,10 @@ export default function EnLandingPage() {
         <h2 className="text-xl font-bold">By the numbers</h2>
         <ul className="mt-4 grid gap-3 text-sm text-ink-700 sm:grid-cols-2">
           <li>· <b>370,666</b> university &amp; GRI patents in pool</li>
-          <li>· <b>158,777</b> actively maintained (renewal-fee paying)</li>
-          <li>· 🔴 24,677 RED (apps 2006–2011, ≤5y left)</li>
-          <li>· 🟡 57,933 YELLOW (apps 2012–2017, 6–11y left)</li>
-          <li>· Universities: 105,562 · GRIs: 53,039</li>
+          <li>· <b>104,582</b> actively maintained (renewal-fee paying, measured 2026-06-07)</li>
+          <li>· 🔴 ~16,253 RED (apps 2006–2011, ≤5y left)</li>
+          <li>· 🟡 ~38,159 YELLOW (apps 2012–2017, 6–11y left)</li>
+          <li>· Universities: ~69,518 · GRIs: ~34,925 (estimated from active pool)</li>
           <li>· Source: KIPRIS Plus (Korea Institute of Patent Information)</li>
         </ul>
       </section>

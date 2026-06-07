@@ -289,7 +289,7 @@ export default function PatentRankAboutPage() {
                 name="PatentPilot"
                 score="PatentRank 5축 (v1)"
                 cite="6편 논문 인용 + MVP 한계 명시 ✅"
-                korea="대학·정출연 158k 전수 ✅"
+                korea="대학·정출연 104k 전수 ✅"
                 price="검색·열람 무료 · 컨택 수수료 거래 성사 시"
                 highlight
               />

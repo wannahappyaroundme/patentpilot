@@ -41,7 +41,7 @@ export default function EnAboutPage() {
           PatentPilot filters the KIPRIS pool to patents that satisfy three
           conditions: (1) a registration decision was issued, (2) renewal fees
           are still being paid, and (3) no prior transfer events exist. That
-          intersection is the addressable seller pool — 158,777 patents today.
+          intersection is the addressable seller pool — 104,582 patents today (measured 2026-06-07).
         </p>
       </Section>
 
@@ -49,15 +49,15 @@ export default function EnAboutPage() {
         <ul>
           <li>
             <b>🔴 RED</b> — apps filed 2006–2011. ≤5 years until expiration.
-            Highest sell motivation. 24,677 patents.
+            Highest sell motivation. ~16,253 patents.
           </li>
           <li>
             <b>🟡 YELLOW</b> — apps filed 2012–2017. 6–11 years left. Strong
-            motivation building. 57,933 patents.
+            motivation building. ~38,159 patents.
           </li>
           <li>
             <b>🟢 GREEN</b> — apps filed 2018+. 12+ years left. Lower urgency
-            but earlier price discovery. 76,167 patents.
+            but earlier price discovery. ~50,170 patents.
           </li>
         </ul>
       </Section>

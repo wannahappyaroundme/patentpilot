@@ -11,7 +11,7 @@ export default function ThemesPage() {
       <div>
         <h1 className="text-2xl font-bold sm:text-3xl">기술분야로 매물 찾기</h1>
         <p className="mt-2 text-sm text-ink-500">
-          IPC 분류 기준 — 매물 풀 158,777건을 기술 카테고리로 묶어 봅니다.
+          IPC 분류 기준 — 매물 풀 104,582건을 기술 카테고리로 묶어 봅니다.
         </p>
       </div>
       <ThemeCards />
