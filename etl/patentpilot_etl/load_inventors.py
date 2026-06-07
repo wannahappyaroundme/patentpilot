@@ -1,7 +1,7 @@
 """06_load_inventors: patents.csv → 출원번호별 발명자 추출 → Supabase UPDATE.
 
 전제: 마이그레이션 20260517000002로 patents.inventor 컬럼이 추가되어 있어야 함.
-방법: 임시 테이블에 COPY 후 UPDATE FROM JOIN (가장 빠름, 158k 행 약 5초).
+방법: 임시 테이블에 COPY 후 UPDATE FROM JOIN (가장 빠름, 104,582 활성 행 약 5초).
 """
 import io
 import pandas as pd

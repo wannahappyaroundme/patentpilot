@@ -35,7 +35,9 @@ export default function EnAboutPage() {
         <p>
           A Korean patent runs for 20 years from filing. Renewal fees more than
           double after year 10 and again at year 16. TLOs paying these fees on
-          a non-commercialized patent are signaling intent to sell.
+          a non-commercialized patent are signaling intent to sell &mdash; and
+          in our measured pool, more than half of all active listings have
+          already crossed that year-10 fee jump.
         </p>
         <p>
           PatentPilot filters the KIPRIS pool to patents that satisfy three
@@ -49,15 +51,16 @@ export default function EnAboutPage() {
         <ul>
           <li>
             <b>🔴 RED</b> — apps filed 2006–2011. ≤5 years until expiration.
-            Highest sell motivation. ~16,253 patents.
+            Highest sell motivation. 19,723 patents (18.9%).
           </li>
           <li>
-            <b>🟡 YELLOW</b> — apps filed 2012–2017. 6–11 years left. Strong
-            motivation building. ~38,159 patents.
+            <b>🟡 YELLOW</b> — apps filed 2012–2017. 6–11 years left. The
+            largest tier and the core of our addressable market: motivation is
+            building fast. 52,554 patents (50.2%).
           </li>
           <li>
             <b>🟢 GREEN</b> — apps filed 2018+. 12+ years left. Lower urgency
-            but earlier price discovery. ~50,170 patents.
+            but earlier price discovery. 32,305 patents (30.9%).
           </li>
         </ul>
       </Section>

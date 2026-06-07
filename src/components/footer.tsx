@@ -10,7 +10,7 @@ export function Footer() {
           <div className="sm:col-span-2">
             <Logo variant="full" height={24} />
             <p className="mt-3 max-w-sm text-ink-500">
-              잠자는 한국 R&D 특허 104,582건을 깨우는 매칭 코파일럿.
+              잠자는 한국 R&D 특허 104,582건 — 그중 절반이 8~14년차 임박 매물 — 을 깨우는 매칭 코파일럿.
               <br className="hidden sm:inline" /> 매물 발굴부터 거래 매칭, 거래 신청까지 한 자리에서.
             </p>
           </div>

@@ -15,7 +15,7 @@ interface Banner {
 const BANNERS: Banner[] = [
   {
     title: "잠자는 한국 R&D 특허,\n깨어날 시간입니다.",
-    subtitle: "유지비 부담으로 곧 포기될 대학·정출연 매물 24,677건",
+    subtitle: "유지비 부담으로 곧 포기될 대학·정출연 임박 매물 52,554건 (풀의 50.2%)",
     href: "/market?urgency=RED",
     cta: "🔴 긴급 매물 보기",
     bg: "bg-gradient-to-br from-brand-700 to-brand-500",

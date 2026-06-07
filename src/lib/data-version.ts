@@ -1,9 +1,10 @@
 /**
  * 데이터 신선도 표시용 메타데이터.
  *
- * 2026-06-07 정정: 실제 활성 풀 count(*) = 104,582 (latest_status='연차료납부').
- * 기존 158,777 추정치는 무효. RED/YELLOW/GREEN은 기존 비율(15.5/36.5/48.0%)을 적용한
- * 임시 추정값이며, urgency 분포 SQL 측정 후 정확한 값으로 동기화 예정.
+ * 2026-06-07 실측 동기화: 활성 풀 count(*) = 104,582 (latest_status='연차료납부').
+ * urgency 분포도 SQL group by 측정값으로 동기화 — RED 19,723 (18.9%) /
+ * YELLOW 52,554 (50.2%) / GREEN 32,305 (30.9%). YELLOW가 최대 구간으로
+ * 매도 동기가 임계점에 가까운 매물이 풀의 절반.
  *
  * 업데이트 절차:
  * 1) ETL이 새 스냅샷을 Supabase에 반영하면 KIPRIS_SYNC_DATE 갱신
@@ -13,10 +14,10 @@
 export const KIPRIS_SYNC_DATE = "2026-06-07";
 
 export const TOTAL_ACTIVE_PATENTS = 104_582;
-// 임시 추정값 (기존 비율 적용) — 정확한 SQL 측정 후 동기화 예정
-export const RED_COUNT = 16_253;
-export const YELLOW_COUNT = 38_159;
-export const GREEN_COUNT = 50_170;
+// 실측 동기화값 (SQL group by urgency 결과)
+export const RED_COUNT = 19_723;
+export const YELLOW_COUNT = 52_554;
+export const GREEN_COUNT = 32_305;
 
 export function formatSyncBadge(): string {
   return `KIPRIS 동기화: ${KIPRIS_SYNC_DATE}`;

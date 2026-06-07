@@ -1,6 +1,6 @@
 -- PatentRank 5축 가중 종합 점수 + 등급 컬럼 추가
 -- 사전 계산 ETL: scripts/precompute-patent-rank.mjs 실행 후 채워짐
--- 효과: 풀 200건 한정 제거 → 전체 158k 매물 풀에서 DB-side 정렬·필터·통계 가능
+-- 효과: 풀 200건 한정 제거 → 전체 활성 풀 104,582건에서 DB-side 정렬·필터·통계 가능
 
 alter table public.patents
   add column if not exists patent_rank      smallint,
@@ -16,7 +16,7 @@ create index if not exists idx_patents_patent_rank_grade
   on public.patents (patent_rank_grade)
   where latest_status = '연차료납부';
 
--- 통계 RPC — 전수 분포 집계 (샘플 2000 → 158k)
+-- 통계 RPC — 전수 분포 집계 (샘플 2000 → 104,582 활성 풀)
 create or replace function public.patent_rank_distribution()
 returns table (
   total_active     bigint,

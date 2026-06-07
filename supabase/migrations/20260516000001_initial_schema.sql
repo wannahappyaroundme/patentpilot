@@ -4,7 +4,7 @@
 create extension if not exists pg_trgm;
 
 -- =============================================================
--- 1) patents — 매물 풀 ~16만 행
+-- 1) patents — 매물 풀 약 10.5만 행 (활성 104,582 실측)
 -- =============================================================
 create table if not exists public.patents (
   application_number     text primary key,

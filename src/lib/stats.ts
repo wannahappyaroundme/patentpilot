@@ -1,24 +1,24 @@
 import type { MarketStats } from "./types";
 
-// 2026-06-07 정정: 활성 풀 실측 104,582건. 비율 임시 추정 — Supabase RPC 작동 시 동적 값 사용.
+// 2026-06-07 정정: 활성 풀 실측 104,582건. urgency/org 분포 모두 실측 동기화 완료 — Supabase RPC 작동 시 동적 값 사용.
 const FALLBACK_STATS: MarketStats = {
   total: 104582,
-  red: 16253,
-  yellow: 38159,
-  green: 50170,
-  univ: 69518,    // 기존 105,562의 비율 65.86%
-  gri: 34925,     // 기존 53,039의 비율 33.4%
+  red: 19723,    // 실측 18.9%
+  yellow: 52554, // 실측 50.2% — 최대 구간
+  green: 32305,  // 실측 30.9%
+  univ: 69777,   // 실측 66.7%
+  gri: 34704,    // 실측 33.2% (기타 101건은 별도)
   top_universities: [
-    { university_name: "한국전자통신연구원", n: 28988 },
-    { university_name: "한국과학기술원", n: 10180 },
-    { university_name: "한국과학기술연구원", n: 6995 },
-    { university_name: "연세대학교", n: 6620 },
-    { university_name: "서울대학교", n: 6618 },
-    { university_name: "고려대학교", n: 6504 },
-    { university_name: "한양대학교", n: 4836 },
-    { university_name: "성균관대학교", n: 4715 },
-    { university_name: "한국기계연구원", n: 4703 },
-    { university_name: "한국화학연구원", n: 4126 },
+    { university_name: "한국전자통신연구원", n: 29096 },
+    { university_name: "한국과학기술원", n: 10218 },
+    { university_name: "한국과학기술연구원", n: 7021 },
+    { university_name: "연세대학교", n: 6645 },
+    { university_name: "서울대학교", n: 6643 },
+    { university_name: "고려대학교", n: 6528 },
+    { university_name: "한양대학교", n: 4854 },
+    { university_name: "성균관대학교", n: 4733 },
+    { university_name: "한국기계연구원", n: 4720 },
+    { university_name: "한국화학연구원", n: 4141 },
   ],
 };
 

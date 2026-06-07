@@ -33,10 +33,11 @@ export default function EnLandingPage() {
           sleeping R&amp;D patents.
         </h1>
         <p className="mt-5 text-base leading-relaxed text-ink-500 sm:text-lg">
-          104,582 university &amp; GRI patents are approaching their 20-year
-          expiration — and the renewal-fee clock is ticking. PatentPilot finds
-          the ones with the strongest sell-side motivation and matches them
-          with corporate buyers who actually need the technology.
+          Over half of the 104,582 actively-maintained Korean university &amp;
+          GRI patents are already in the 8&ndash;14 year window, where renewal
+          fees climb sharply. PatentPilot surfaces the ones whose sell-side
+          motivation is closest to the tipping point and matches them with
+          corporate buyers who actually need the technology.
         </p>
         <div className="mt-7 flex flex-wrap gap-2">
           <Link
@@ -83,9 +84,10 @@ export default function EnLandingPage() {
         <ul className="mt-4 grid gap-3 text-sm text-ink-700 sm:grid-cols-2">
           <li>· <b>370,666</b> university &amp; GRI patents in pool</li>
           <li>· <b>104,582</b> actively maintained (renewal-fee paying, measured 2026-06-07)</li>
-          <li>· 🔴 ~16,253 RED (apps 2006–2011, ≤5y left)</li>
-          <li>· 🟡 ~38,159 YELLOW (apps 2012–2017, 6–11y left)</li>
-          <li>· Universities: ~69,518 · GRIs: ~34,925 (estimated from active pool)</li>
+          <li>· 🔴 19,723 RED (18.9% — apps 2006–2011, ≤5y left)</li>
+          <li>· 🟡 52,554 YELLOW (50.2% — apps 2012–2017, 6–11y left, the largest tier)</li>
+          <li>· 🟢 32,305 GREEN (30.9% — apps 2018+, 12+y left)</li>
+          <li>· Universities: 69,777 (66.7%) · GRIs: 34,704 (33.2%) · Other: 101 (measured)</li>
           <li>· Source: KIPRIS Plus (Korea Institute of Patent Information)</li>
         </ul>
       </section>
