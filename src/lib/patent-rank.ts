@@ -259,17 +259,42 @@ export function patentRank(p: PatentRow): PatentRankDetail {
   };
 }
 
+/**
+ * 등급 컷오프 (하이브리드).
+ * - S ≥ 80, A ≥ 65: 학술 절대 기준 (Trajtenberg-style 가치 절대값)
+ * - B/C/D: 매물 풀 분위수 기반 (B 상위 40%, C 중위 40%, D 하위 20% — 65점 미만 영역에서)
+ *
+ * 실제 분위수 값은 supabase/migrations/20260607000001_hybrid_grade_recalc.sql 실행 후
+ * DB에 적용된 컷오프와 동기화 필요. 분위수가 측정되면 아래 GRADE_CUTOFFS를 갱신.
+ *
+ * 동기화 절차:
+ *   1) SQL 실행 → RAISE NOTICE로 출력된 p_bc, p_cd 값 확인
+ *   2) GRADE_CUTOFFS.B, .C에 정수값 박기
+ *   3) 빌드 후 코드 grade ↔ DB grade 일치 확인
+ */
+export const GRADE_CUTOFFS = {
+  S: 80, // 학술 절대 기준
+  A: 65, // 학술 절대 기준
+  B: 55, // 분위수 기반 — DB SQL 실행 후 동기화 필요 (잠정 값)
+  C: 47, // 분위수 기반 — DB SQL 실행 후 동기화 필요 (잠정 값)
+  // D: 그 이하
+} as const;
+
 // 등급 라벨
 export function patentRankGrade(overall: number): {
   grade: string;
   color: string;
   desc: string;
 } {
-  if (overall >= 80) return { grade: "S", color: "#7C3AED", desc: "최상위 — 즉시 매수 후보 컨택 권장" };
-  if (overall >= 65) return { grade: "A", color: "#006EFF", desc: "상위 — 산업·시장 적합도 우수" };
-  if (overall >= 50) return { grade: "B", color: "#059669", desc: "중상위 — 매물 풀 평균 이상" };
-  if (overall >= 35) return { grade: "C", color: "#D97706", desc: "중위 — 부가 정보로 가치 보강 필요" };
-  return { grade: "D", color: "#64748B", desc: "하위 — 다른 매물 우선 검토 권장" };
+  if (overall >= GRADE_CUTOFFS.S)
+    return { grade: "S", color: "#7C3AED", desc: "최상위 — 즉시 매수 후보 컨택 권장" };
+  if (overall >= GRADE_CUTOFFS.A)
+    return { grade: "A", color: "#006EFF", desc: "상위 — 산업·시장 적합도 우수" };
+  if (overall >= GRADE_CUTOFFS.B)
+    return { grade: "B", color: "#059669", desc: "중상위 — 매물 풀 분위수 상위 40%" };
+  if (overall >= GRADE_CUTOFFS.C)
+    return { grade: "C", color: "#D97706", desc: "중위 — 매물 풀 분위수 중위 40%" };
+  return { grade: "D", color: "#64748B", desc: "하위 — 매물 풀 분위수 하위 20%" };
 }
 
 /**

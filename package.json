@@ -9,7 +9,8 @@
     "lint": "next lint",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "precompute-rank": "tsx -r dotenv/config scripts/precompute-patent-rank.ts dotenv_config_path=.env.local"
+    "precompute-rank": "tsx -r dotenv/config scripts/precompute-patent-rank.ts dotenv_config_path=.env.local",
+    "precompute-rank:resume": "tsx -r dotenv/config scripts/precompute-patent-rank.ts --resume dotenv_config_path=.env.local"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.4",

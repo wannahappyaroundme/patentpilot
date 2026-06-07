@@ -169,16 +169,20 @@ export default function PatentRankAboutPage() {
         </div>
       </Section>
 
-      <Section title="4. 등급 컷오프">
-        <p>현재 컷오프는 매물 풀 분포에 대한 사전 통계 검토 없이 설정된
-          잠정 값입니다 (D-25 안에 분포 검토 후 재조정 예정).</p>
+      <Section title="4. 등급 컷오프 — 하이브리드 (학술 절대값 + 분위수)">
+        <p>
+          초기 컷오프(80/65/50/35) 적용 결과 B등급에 매물 풀의 67.7%가 몰려
+          변별력이 약해졌습니다. 사용자 의사결정에 따라 <strong>S·A는 학술 절대
+          기준을 유지</strong>(Trajtenberg 등 인용 점수 기반)하고,{" "}
+          <strong>B·C·D는 매물 풀 분위수로 재정의</strong>해 변별력을 확보합니다.
+        </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-5">
           {[
-            { g: "S", min: 80, color: "#7C3AED", desc: "즉시 컨택" },
-            { g: "A", min: 65, color: "#006EFF", desc: "산업 적합도 우수" },
-            { g: "B", min: 50, color: "#059669", desc: "평균 이상" },
-            { g: "C", min: 35, color: "#D97706", desc: "보강 필요" },
-            { g: "D", min: 0, color: "#64748B", desc: "정보 부족" },
+            { g: "S", desc: "절대 ≥80 · 즉시 컨택", basis: "학술 절대", color: "#7C3AED" },
+            { g: "A", desc: "절대 ≥65 · 산업 적합 우수", basis: "학술 절대", color: "#006EFF" },
+            { g: "B", desc: "분위수 상위 40% (65 미만)", basis: "풀 분위수", color: "#059669" },
+            { g: "C", desc: "분위수 중위 40%", basis: "풀 분위수", color: "#D97706" },
+            { g: "D", desc: "분위수 하위 20%", basis: "풀 분위수", color: "#64748B" },
           ].map((t) => (
             <div
               key={t.g}
@@ -191,12 +195,22 @@ export default function PatentRankAboutPage() {
                 {t.g}
               </div>
               <div className="mt-2 text-xs font-semibold text-ink-900">
-                ≥ {t.min}점
+                {t.desc}
               </div>
-              <div className="text-[10px] text-ink-500">{t.desc}</div>
+              <div className="mt-1 text-[10px] text-ink-400">{t.basis}</div>
             </div>
           ))}
         </div>
+        <p className="mt-4 text-xs leading-relaxed text-ink-500">
+          분위수 컷오프 값은 매물 풀이 갱신될 때마다 재측정됩니다 (현재 추정:
+          B ≥ 55점, C ≥ 47점 — Postgres percentile_cont 기준).{" "}
+          <a
+            href="/stats/patent-rank"
+            className="text-brand hover:underline"
+          >
+            실제 분포 →
+          </a>
+        </p>
       </Section>
 
       <Section title="5. MVP 단계의 솔직한 한계">

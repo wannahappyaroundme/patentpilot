@@ -54,29 +54,40 @@ interface UpdateRow {
   patent_rank_grade: string;
 }
 
-async function fetchBatch(
+/**
+ * Cursor 기반 배치 fetch. offset 페이징은 데이터가 1000건 응답 한도에 걸리거나
+ * 정렬 키 중복이 있으면 누락 발생. application_number > cursor 방식으로 안전 페이징.
+ */
+async function fetchBatchByCursor(
   sb: ReturnType<typeof createClient>,
-  offset: number,
+  cursor: string | null,
+  nullOnly: boolean,
 ): Promise<PatentRow[]> {
-  const { data, error } = await sb
+  let q = sb
     .from("patents")
     .select("*")
     .eq("latest_status", "연차료납부")
     .order("application_number", { ascending: true })
-    .range(offset, offset + BATCH_SIZE - 1);
-  if (error) {
-    throw new Error(`fetch offset=${offset}: ${error.message}`);
-  }
+    .limit(BATCH_SIZE);
+
+  if (cursor) q = q.gt("application_number", cursor);
+  if (nullOnly) q = q.is("patent_rank", null);
+
+  const { data, error } = await q;
+  if (error) throw new Error(`fetch cursor=${cursor}: ${error.message}`);
   return (data ?? []) as PatentRow[];
 }
 
 async function fetchTotalCount(
   sb: ReturnType<typeof createClient>,
+  nullOnly: boolean,
 ): Promise<number> {
-  const { count, error } = await sb
+  let q = sb
     .from("patents")
     .select("application_number", { count: "exact", head: true })
     .eq("latest_status", "연차료납부");
+  if (nullOnly) q = q.is("patent_rank", null);
+  const { count, error } = await q;
   if (error) throw new Error(`count: ${error.message}`);
   return count ?? 0;
 }
@@ -108,28 +119,47 @@ async function applyUpdates(
   }
 }
 
+function parseArgs(): { resume: boolean } {
+  // process.argv = [node, script, ...args]
+  const args = process.argv.slice(2);
+  return {
+    resume: args.includes("--resume") || args.includes("--null-only"),
+  };
+}
+
 async function main() {
+  const { resume } = parseArgs();
   const { url, key } = loadEnv();
   const sb = createClient(url, key, {
     auth: { persistSession: false },
   });
 
-  console.log("[info] 활성 매물 총 개수 조회 중...");
-  const total = await fetchTotalCount(sb);
-  console.log(`[info] 총 ${total.toLocaleString()}건 (연차료납부 상태)`);
+  console.log(
+    `[info] 모드: ${resume ? "RESUME (patent_rank IS NULL만)" : "FULL (모든 활성 매물)"}`,
+  );
+  console.log("[info] 대상 매물 총 개수 조회 중...");
+  const total = await fetchTotalCount(sb, resume);
+  console.log(`[info] 총 ${total.toLocaleString()}건 (처리 대상)`);
 
   if (total === 0) {
-    console.log("[done] 적재할 매물이 없습니다.");
+    console.log("[done] 처리할 매물이 없습니다.");
     return;
   }
 
   const t0 = Date.now();
   let processed = 0;
   let updated = 0;
+  let cursor: string | null = null;
+  let consecutiveEmptyBatches = 0;
 
-  for (let offset = 0; offset < total; offset += BATCH_SIZE) {
-    const rows = await fetchBatch(sb, offset);
-    if (rows.length === 0) break;
+  while (true) {
+    const rows = await fetchBatchByCursor(sb, cursor, resume);
+    if (rows.length === 0) {
+      consecutiveEmptyBatches++;
+      if (consecutiveEmptyBatches >= 2) break;
+      continue;
+    }
+    consecutiveEmptyBatches = 0;
 
     const updates: UpdateRow[] = rows.map((p) => {
       const r = patentRank(p);
@@ -145,14 +175,23 @@ async function main() {
     processed += rows.length;
     updated += updates.length;
 
+    // cursor 갱신 — 마지막 row의 application_number
+    cursor = rows[rows.length - 1]!.application_number;
+
     const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
     const pct = ((processed / total) * 100).toFixed(1);
     const eta = (
       ((Date.now() - t0) / processed) * (total - processed) / 1000
     ).toFixed(0);
     console.log(
-      `  [${pct}%] offset=${offset.toLocaleString()} · ${processed.toLocaleString()}/${total.toLocaleString()} · ${elapsed}s 경과 · ETA ${eta}s`,
+      `  [${pct}%] cursor=${cursor} · ${processed.toLocaleString()}/${total.toLocaleString()} · ${elapsed}s 경과 · ETA ${eta}s`,
     );
+
+    // 안전장치 — 무한 루프 방지
+    if (processed >= total + BATCH_SIZE) {
+      console.warn("[warn] 처리 수가 총 개수 초과, 종료");
+      break;
+    }
   }
 
   const totalSec = ((Date.now() - t0) / 1000).toFixed(1);
@@ -165,8 +204,8 @@ async function main() {
   console.log("  1) Supabase SQL editor에서 분포 확인:");
   console.log("       select patent_rank_grade, count(*) from patents");
   console.log("       where latest_status = '연차료납부' group by 1 order by 1;");
-  console.log("  2) 사이트에서 /stats/patent-rank 페이지 확인 (캐시 30분)");
-  console.log("  3) /market 에서 'PatentRank 높은순' 정렬 + 등급 칩 사용 — 풀 한정 라벨 사라짐");
+  console.log("  2) 만약 null이 남아 있으면 다시 실행: npm run precompute-rank:resume");
+  console.log("  3) /stats/patent-rank 페이지 캐시 갱신 (30분 후 자동)");
 }
 
 main().catch((e) => {
