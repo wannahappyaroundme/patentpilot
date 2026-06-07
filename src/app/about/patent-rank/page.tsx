@@ -178,11 +178,11 @@ export default function PatentRankAboutPage() {
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-5">
           {[
-            { g: "S", desc: "절대 ≥80 · 즉시 컨택", basis: "학술 절대", color: "#7C3AED" },
-            { g: "A", desc: "절대 ≥65 · 산업 적합 우수", basis: "학술 절대", color: "#006EFF" },
-            { g: "B", desc: "분위수 상위 40% (65 미만)", basis: "풀 분위수", color: "#059669" },
-            { g: "C", desc: "분위수 중위 40%", basis: "풀 분위수", color: "#D97706" },
-            { g: "D", desc: "분위수 하위 20%", basis: "풀 분위수", color: "#64748B" },
+            { g: "S", desc: "≥ 80점", basis: "학술 절대 · 5건 (0.0%)", color: "#7C3AED" },
+            { g: "A", desc: "65 ~ 79점", basis: "학술 절대 · 7,767건 (7.4%)", color: "#006EFF" },
+            { g: "B", desc: "56 ~ 64점", basis: "풀 분위수 · 42,748건 (40.9%)", color: "#059669" },
+            { g: "C", desc: "48 ~ 55점", basis: "풀 분위수 · 35,136건 (33.6%)", color: "#D97706" },
+            { g: "D", desc: "20 ~ 47점", basis: "풀 분위수 · 18,926건 (18.1%)", color: "#64748B" },
           ].map((t) => (
             <div
               key={t.g}
@@ -202,13 +202,13 @@ export default function PatentRankAboutPage() {
           ))}
         </div>
         <p className="mt-4 text-xs leading-relaxed text-ink-500">
-          분위수 컷오프 값은 매물 풀이 갱신될 때마다 재측정됩니다 (현재 추정:
-          B ≥ 55점, C ≥ 47점 — Postgres percentile_cont 기준).{" "}
+          ※ 2026-06-07 실측 기준 · 활성 풀 104,582건 · 매물 풀 갱신 시 분위수
+          재측정. 최고 점수는 83점이라 S 등급은 사실상 이상치 극상위 tier입니다.{" "}
           <a
             href="/stats/patent-rank"
             className="text-brand hover:underline"
           >
-            실제 분포 →
+            전수 분포 페이지 →
           </a>
         </p>
       </Section>
