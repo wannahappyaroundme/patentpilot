@@ -80,6 +80,11 @@ def load_citation_span(conn) -> None:
 
 
 def load_prior_patent(conn) -> None:
+    """PriorPatentCount 적재 — chunked batch UPDATE.
+
+    364k rows 단일 UPDATE는 Supabase statement_timeout(보통 ~2분) 초과.
+    10,000건씩 chunk + 매 batch commit → 안전 + 진행률 표시.
+    """
     csv_path = BUILD_DIR / "prior_patent_count.csv"
     if not csv_path.exists():
         print(
@@ -95,38 +100,64 @@ def load_prior_patent(conn) -> None:
         return
 
     cur = conn.cursor()
+    # 일반 staging 테이블 (temp + on commit drop은 chunked commit과 충돌 — 첫 commit에 사라짐)
+    cur.execute("drop table if exists stg_prior_patent")
     cur.execute(
         """
-        create temp table tmp_prior_patent (
+        create table stg_prior_patent (
           application_number     text primary key,
           prior_patent_count     smallint,
           prior_patent_count_max smallint,
           prior_patent_conf      text
-        ) on commit drop;
+        );
         """
     )
     buf = io.StringIO()
     df.to_csv(buf, index=False, header=False)
     buf.seek(0)
     cur.copy_expert(
-        "copy tmp_prior_patent (application_number, prior_patent_count, prior_patent_count_max, prior_patent_conf) "
+        "copy stg_prior_patent (application_number, prior_patent_count, prior_patent_count_max, prior_patent_conf) "
         "from stdin with (format csv)",
         buf,
     )
-    cur.execute("select count(*) from tmp_prior_patent")
-    print(f"  [prior_patent_count] tmp rows: {cur.fetchone()[0]:,}", file=sys.stderr)
-
-    cur.execute(
-        """
-        update public.patents p
-           set prior_patent_count     = t.prior_patent_count,
-               prior_patent_count_max = t.prior_patent_count_max,
-               prior_patent_conf      = t.prior_patent_conf
-          from tmp_prior_patent t
-         where t.application_number = p.application_number;
-        """
-    )
+    cur.execute("analyze stg_prior_patent")
+    cur.execute("select count(*) from stg_prior_patent")
+    total = cur.fetchone()[0]
+    print(f"  [prior_patent_count] staging rows: {total:,}", file=sys.stderr)
     conn.commit()
+
+    # Chunked UPDATE — application_number 기준 N건씩
+    BATCH = 10_000
+    cur.execute("select application_number from stg_prior_patent order by application_number")
+    keys = [r[0] for r in cur.fetchall()]
+    updated_total = 0
+    for i in range(0, len(keys), BATCH):
+        chunk = keys[i : i + BATCH]
+        cur.execute(
+            """
+            update public.patents p
+               set prior_patent_count     = t.prior_patent_count,
+                   prior_patent_count_max = t.prior_patent_count_max,
+                   prior_patent_conf      = t.prior_patent_conf
+              from stg_prior_patent t
+             where t.application_number = p.application_number
+               and p.application_number = any(%s);
+            """,
+            (chunk,),
+        )
+        updated_total += cur.rowcount
+        conn.commit()
+        done = min(i + BATCH, len(keys))
+        print(
+            f"  [prior_patent_count] {done:,}/{len(keys):,} keys processed · "
+            f"{updated_total:,} patents updated",
+            file=sys.stderr,
+        )
+
+    # Cleanup
+    cur.execute("drop table if exists stg_prior_patent")
+    conn.commit()
+
     cur.execute(
         "select count(*) from public.patents where prior_patent_count is not null"
     )
