@@ -178,11 +178,11 @@ export default function PatentRankAboutPage() {
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-5">
           {[
-            { g: "S", desc: "≥ 80점", basis: "학술 절대 · 5건 (0.0%)", color: "#7C3AED" },
-            { g: "A", desc: "65 ~ 79점", basis: "학술 절대 · 7,767건 (7.4%)", color: "#006EFF" },
-            { g: "B", desc: "56 ~ 64점", basis: "풀 분위수 · 42,748건 (40.9%)", color: "#059669" },
-            { g: "C", desc: "48 ~ 55점", basis: "풀 분위수 · 35,136건 (33.6%)", color: "#D97706" },
-            { g: "D", desc: "20 ~ 47점", basis: "풀 분위수 · 18,926건 (18.1%)", color: "#64748B" },
+            { g: "S", desc: "≥ 80점", basis: "학술 절대 · 2건 (0.0%)", color: "#7C3AED" },
+            { g: "A", desc: "65 ~ 79점", basis: "학술 절대 · 5,315건 (5.1%)", color: "#006EFF" },
+            { g: "B", desc: "56 ~ 64점", basis: "풀 분위수 · 39,240건 (37.5%)", color: "#059669" },
+            { g: "C", desc: "48 ~ 55점", basis: "풀 분위수 · 37,504건 (35.9%)", color: "#D97706" },
+            { g: "D", desc: "20 ~ 47점", basis: "풀 분위수 · 22,521건 (21.5%)", color: "#64748B" },
           ].map((t) => (
             <div
               key={t.g}
@@ -202,8 +202,9 @@ export default function PatentRankAboutPage() {
           ))}
         </div>
         <p className="mt-4 text-xs leading-relaxed text-ink-500">
-          ※ 2026-06-07 실측 기준 · 활성 풀 104,582건 · 매물 풀 갱신 시 분위수
-          재측정. 최고 점수는 83점이라 S 등급은 사실상 이상치 극상위 tier입니다.{" "}
+          ※ 2026-06-07 실측 기준 · 활성 풀 104,582건 · CitationSpan(IMP) +
+          PriorPatentCount(COM) ETL 적용 후 분포. 매물 풀 갱신 시 분위수 재측정.
+          최고 점수 80점대 초반이라 S 등급은 사실상 이상치 극상위 tier입니다.{" "}
           <a
             href="/stats/patent-rank"
             className="text-brand hover:underline"
