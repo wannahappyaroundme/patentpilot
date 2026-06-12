@@ -13,7 +13,10 @@
     "precompute-rank:resume": "tsx -r dotenv/config scripts/precompute-patent-rank.ts --resume dotenv_config_path=.env.local"
   },
   "dependencies": {
+    "@sentry/nextjs": "^10.57.0",
     "@supabase/supabase-js": "^2.105.4",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.38.0",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "class-variance-authority": "^0.7.1",
@@ -24,7 +27,8 @@
     "react": "^18",
     "react-dom": "^18",
     "shadcn": "^4.7.0",
-    "tailwind-merge": "^3.6.0"
+    "tailwind-merge": "^3.6.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",

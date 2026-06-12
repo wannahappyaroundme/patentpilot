@@ -1,10 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
 import { rateLimit, rateLimitHeaders } from "@/lib/rate-limit";
+import { loiSchema, firstIssue } from "@/lib/validation";
 
 export async function POST(req: NextRequest) {
   // Rate limit: IP당 1시간에 5회
-  const rl = rateLimit(req, "loi", 5, 3600);
+  const rl = await rateLimit(req, "loi", 5, 3600);
   if (!rl.ok) {
     return NextResponse.json(
       { error: `요청 한도를 초과했습니다. ${rl.resetSec}초 후 다시 시도해주세요.` },
@@ -12,45 +13,32 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let body: Record<string, unknown> = {};
+  let raw: unknown;
   try {
-    body = await req.json();
+    raw = await req.json();
   } catch {
     return NextResponse.json({ error: "invalid JSON" }, { status: 400 });
   }
 
-  const get = (k: string) => {
-    const v = body[k];
-    return typeof v === "string" ? v.trim() : "";
-  };
+  const parsed = loiSchema.safeParse(raw);
+  if (!parsed.success) {
+    return NextResponse.json({ error: firstIssue(parsed.error) }, { status: 400 });
+  }
+  const input = parsed.data;
 
   // Honeypot: 사람이 안 채우는 hidden 필드. 봇이 채우면 fake-success로 응답.
-  if (get("website_alt")) {
+  if (input.website_alt) {
     return NextResponse.json({ ok: true, id: 0, created_at: new Date().toISOString() });
   }
 
-  const company_name = get("company_name");
-  const contact_name = get("contact_name");
-  const contact_email = get("contact_email");
-
-  if (!company_name || !contact_name || !contact_email) {
-    return NextResponse.json(
-      { error: "company_name, contact_name, contact_email은 필수입니다." },
-      { status: 400 },
-    );
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact_email)) {
-    return NextResponse.json({ error: "이메일 형식이 올바르지 않습니다." }, { status: 400 });
-  }
-
   const row = {
-    patent_application_number: get("patent_application_number") || null,
-    company_name,
-    contact_name,
-    contact_email,
-    contact_phone: get("contact_phone"),
-    proposed_amount: get("proposed_amount"),
-    message: get("message"),
+    patent_application_number: input.patent_application_number || null,
+    company_name: input.company_name,
+    contact_name: input.contact_name,
+    contact_email: input.contact_email,
+    contact_phone: input.contact_phone,
+    proposed_amount: input.proposed_amount,
+    message: input.message,
   };
 
   try {

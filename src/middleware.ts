@@ -15,6 +15,19 @@ function unauthorized(): NextResponse {
   });
 }
 
+/** 상수 시간 문자열 비교 — 타이밍 공격으로 자릿수/일치 길이 추정 방지 */
+function safeEqual(a: string, b: string): boolean {
+  const enc = new TextEncoder();
+  const ab = enc.encode(a);
+  const bb = enc.encode(b);
+  let diff = ab.length ^ bb.length;
+  const len = Math.max(ab.length, bb.length);
+  for (let i = 0; i < len; i++) {
+    diff |= (ab[i] ?? 0) ^ (bb[i] ?? 0);
+  }
+  return diff === 0;
+}
+
 function decodeBase64(s: string): string {
   if (typeof atob === "function") {
     try {
@@ -54,7 +67,7 @@ export function middleware(req: NextRequest) {
   const user = decoded.slice(0, sep).trim();
   const pass = decoded.slice(sep + 1).trim();
 
-  if (user !== expectedUser || pass !== expectedPass) {
+  if (!safeEqual(user, expectedUser) || !safeEqual(pass, expectedPass)) {
     return unauthorized();
   }
 

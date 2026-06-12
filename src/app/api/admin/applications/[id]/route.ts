@@ -14,7 +14,7 @@ export async function DELETE(
     const { error } = await sb.from("applications").delete().eq("id", id);
     if (error) {
       console.error("applications delete error", error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: "처리에 실패했습니다." }, { status: 500 });
     }
     return NextResponse.json({ ok: true });
   } catch (e) {

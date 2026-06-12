@@ -29,7 +29,7 @@ test.describe("PatentPilot smoke tests", () => {
     await expect(
       page.getByRole("heading", { name: /개인정보처리방침/ }),
     ).toBeVisible();
-    await expect(page.getByText("ethos614@gmail.com")).toBeVisible();
+    await expect(page.getByText("ethos614@gmail.com").first()).toBeVisible();
   });
 
   test("Terms of service is reachable", async ({ page }) => {

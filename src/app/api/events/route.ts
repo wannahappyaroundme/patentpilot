@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
+import { rateLimit, rateLimitHeaders } from "@/lib/rate-limit";
 
 const ALLOWED_NAMES = new Set([
   "page_view",
@@ -19,6 +20,15 @@ interface IncomingEvent {
 }
 
 export async function POST(req: NextRequest) {
+  // 플러딩 방어: IP당 1시간 300회 (실사용자는 페이지뷰당 수 건 수준)
+  const rl = await rateLimit(req, "events", 300, 3600);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: "rate limited" },
+      { status: 429, headers: rateLimitHeaders(rl) },
+    );
+  }
+
   let body: IncomingEvent | IncomingEvent[] = {};
   try {
     body = await req.json();
@@ -26,7 +36,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "invalid JSON" }, { status: 400 });
   }
 
-  const list = Array.isArray(body) ? body : [body];
+  // 요청당 최대 20개 이벤트만 수용 (플러딩 방어)
+  const list = (Array.isArray(body) ? body : [body]).slice(0, 20);
   const ua = req.headers.get("user-agent") ?? "";
   const rows = list
     .map((e) => ({
@@ -36,7 +47,12 @@ export async function POST(req: NextRequest) {
           : null,
       path: typeof e.path === "string" ? e.path.slice(0, 256) : "",
       ref: typeof e.ref === "string" ? e.ref.slice(0, 256) : "",
-      meta: typeof e.meta === "object" && e.meta !== null ? e.meta : {},
+      meta:
+        typeof e.meta === "object" &&
+        e.meta !== null &&
+        JSON.stringify(e.meta).length <= 2048
+          ? e.meta
+          : {},
       session_id:
         typeof e.session_id === "string" ? e.session_id.slice(0, 64) : "",
       user_agent: ua.slice(0, 256),

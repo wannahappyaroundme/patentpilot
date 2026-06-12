@@ -29,7 +29,7 @@ function parseSort(v: string | null): SearchParams["sort"] {
 
 export async function GET(req: NextRequest) {
   // Rate limit: IP당 1분에 60회 (사용자 검색은 충분, 스크래퍼는 차단)
-  const rl = rateLimit(req, "search", 60, 60);
+  const rl = await rateLimit(req, "search", 60, 60);
   if (!rl.ok) {
     return NextResponse.json(
       { error: "too many requests" },

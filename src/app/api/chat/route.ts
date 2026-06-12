@@ -5,6 +5,7 @@ import { searchPatents, getPatentByAppNo } from "@/lib/patents";
 import type { PatentRow } from "@/lib/types";
 import { matchCompanies, type CompanyMatch } from "@/lib/matching";
 import { rateLimit, rateLimitHeaders } from "@/lib/rate-limit";
+import { chatSchema, firstIssue } from "@/lib/validation";
 import { patentRank, patentRankGrade } from "@/lib/patent-rank";
 
 function avgPatentRank(rows: PatentRow[]): { mean: number; gradeBreakdown: string } | null {
@@ -56,14 +57,14 @@ function urgencyLabel(u: string | undefined): string {
 
 export async function POST(req: NextRequest) {
   // 2단 캡: (1) 분당 10회 — 봇 차단 (2) 일일 30회 — OpenAI 비용 보호
-  const rlBurst = rateLimit(req, "chat:min", 10, 60);
+  const rlBurst = await rateLimit(req, "chat:min", 10, 60);
   if (!rlBurst.ok) {
     return NextResponse.json(
       { error: `너무 빠른 요청입니다. ${rlBurst.resetSec}초 후 다시 시도해주세요.` },
       { status: 429, headers: rateLimitHeaders(rlBurst) },
     );
   }
-  const rlDay = rateLimit(req, "chat:day", 30, 24 * 3600);
+  const rlDay = await rateLimit(req, "chat:day", 30, 24 * 3600);
   if (!rlDay.ok) {
     const hours = Math.ceil(rlDay.resetSec / 3600);
     return NextResponse.json(
@@ -74,29 +75,19 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let body: { q?: string; history?: ChatHistoryTurn[] } = {};
+  let raw: unknown;
   try {
-    body = await req.json();
+    raw = await req.json();
   } catch {
     return NextResponse.json({ error: "invalid JSON" }, { status: 400 });
   }
-
-  const q = (body.q ?? "").trim();
-  if (!q) return NextResponse.json({ error: "q is required" }, { status: 400 });
-
-  // 클라이언트가 보낸 history (직전 대화). user/assistant 형태로 검증
-  const rawHistory = Array.isArray(body.history) ? body.history : [];
-  const history: ChatHistoryTurn[] = rawHistory
-    .filter(
-      (t): t is ChatHistoryTurn =>
-        t !== null &&
-        typeof t === "object" &&
-        (t as ChatHistoryTurn).role !== undefined &&
-        ((t as ChatHistoryTurn).role === "user" ||
-          (t as ChatHistoryTurn).role === "assistant") &&
-        typeof (t as ChatHistoryTurn).content === "string",
-    )
-    .slice(-10);
+  const parsed = chatSchema.safeParse(raw);
+  if (!parsed.success) {
+    return NextResponse.json({ error: firstIssue(parsed.error) }, { status: 400 });
+  }
+  const q = parsed.data.q;
+  // 클라이언트가 보낸 history (직전 대화). zod가 role/content 형태·길이·개수(≤10) 검증
+  const history: ChatHistoryTurn[] = parsed.data.history;
 
   // OPENAI_API_KEY가 있으면 LLM으로 의도 추출 (history 포함), 실패 시 룰베이스
   const llm = await llmIntent(q, history);

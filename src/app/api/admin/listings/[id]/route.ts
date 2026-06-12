@@ -20,7 +20,7 @@ export async function DELETE(
     const { error } = await sb.from("listings").delete().eq("id", id);
     if (error) {
       console.error("listings delete error", error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: "처리에 실패했습니다." }, { status: 500 });
     }
     return NextResponse.json({ ok: true });
   } catch (e) {
@@ -58,7 +58,7 @@ export async function PATCH(
       .eq("id", id);
     if (error) {
       console.error("listings update error", error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: "처리에 실패했습니다." }, { status: 500 });
     }
     return NextResponse.json({ ok: true, status });
   } catch (e) {

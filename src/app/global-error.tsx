@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import * as Sentry from "@sentry/nextjs";
 
 /**
  * Root-level error boundary. Replaces the root layout (so includes html/body).
@@ -14,7 +15,7 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // 콘솔에만 기록 — 외부 Sentry 같은 곳으로 보낼 거면 여기서 호출
+    Sentry.captureException(error);
     // eslint-disable-next-line no-console
     console.error("[global-error]", error);
   }, [error]);
